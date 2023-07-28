@@ -11,11 +11,13 @@ import {
     StarOutlined
 } from '@ant-design/icons';
 import './DashboardSider.css'
-
 import Image from "next/image";
+import {useState} from "react";
+import {usePathname, useRouter} from "next/navigation";
+
+type MenuItem = Required<MenuProps>['items'][number];
 
 const {Sider} = Layout;
-type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(
     label: React.ReactNode,
@@ -32,22 +34,32 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('开始', '1', <ClockCircleOutlined/>),
-    getItem('知识库', '2', <InboxOutlined/>),
-    getItem('收藏', '3', <StarOutlined/>),
-    getItem('看看别人', '4', <PlusOutlined/>),
+    getItem('开始', '/dashboard', <ClockCircleOutlined/>),
+    getItem('知识库', '/dashboard/books', <InboxOutlined/>),
+    getItem('收藏', '/dashboard/save', <StarOutlined/>),
+    getItem('看看别人', '/dashboard/explore', <PlusOutlined/>),
 ];
 
 
 const DashboardSider = () => {
+    const router = useRouter()
+    const pathName = usePathname()
+    const [defaultActive, setDefaultActive] = useState([pathName]);
+    const onClick: MenuProps['onClick'] = (e) => {
+        setDefaultActive([e.key]);
+        router.push(e.key)
+    };
+
     return (
         <>
-            <Sider width={255} theme={"light"} style={{background: 'rgba(239, 239, 239, 0.8)',padding:15,boxSizing:"border-box"}}>
+            <Sider width={255} theme={"light"}
+                   style={{background: 'rgba(239, 239, 239, 0.8)', padding: 15, boxSizing: "border-box"}}>
                 <div className={"dashboard_sider_header"}>
                     <div className={"flex_middle"}>
                         <Image src={'/icons/LOGO.png'} alt={''} width={35} height={35}/>
-                        <div style={{fontWeight:"bold",marginLeft:10}}>学习随记</div>
+                        <div style={{fontWeight: "bold", marginLeft: 10}}>学习随记</div>
                     </div>
+
                     <div className={"flex_middle"}>
                         <BellFilled className={"sider_header_news"} style={{color: "#01B96B"}}/>
                         <Image className={"sider_header_avatar"} src={'/icons/icon.jpg'} alt={""} width={35}
@@ -57,8 +69,8 @@ const DashboardSider = () => {
                 <div className={"dashboard_sider_search"}>
                     <Input placeholder={"搜索"} prefix={<SearchOutlined/>}></Input>
                 </div>
-                <Menu mode="inline" theme={"light"} items={items} style={{border: 'none'}}>
-                </Menu>
+                <Menu onClick={onClick} defaultSelectedKeys={defaultActive} mode="inline" theme={"light"} items={items}
+                      style={{border: 'none'}}/>
             </Sider>
         </>
     )

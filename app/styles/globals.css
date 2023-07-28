@@ -38,9 +38,9 @@ body {
     justify-content: center;
 }
 
-.app_container .title{
+.app_container .title {
     color: rgba(16, 16, 16, 1);
     font-size: 28px;
     text-align: left;
-    font-family: SourceHanSansSC-regular,sans-serif;
+    font-family: SourceHanSansSC-regular, sans-serif;
 }
