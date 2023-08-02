@@ -3,7 +3,7 @@
 
 <h1 align="center">AnyNote</h1>
 
-A note-taking app designed for college students.
+一款专为大学生设计的笔记应用。
 
 ## Getting Started
 

@@ -3,12 +3,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .sider_header_avatar {
+        margin-left: 10px;
+        border-radius: 50%;
+    }
 }
 
-.sider_header_avatar {
-    margin-left: 10px;
-    border-radius: 50%;
-}
 .dashboard_sider_search {
     padding-bottom: 24px;
 }

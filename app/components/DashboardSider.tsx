@@ -10,7 +10,7 @@ import {
     SearchOutlined,
     StarOutlined
 } from '@ant-design/icons';
-import './DashboardSider.css'
+import './DashboardSider.scss'
 import Image from "next/image";
 import {useState} from "react";
 import {usePathname, useRouter} from "next/navigation";

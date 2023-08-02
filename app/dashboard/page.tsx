@@ -1,12 +1,13 @@
 'use client'
 
-import {Card, Dropdown, MenuProps, Select, Table} from "antd";
-import './page.css'
-import {ContainerOutlined, DownOutlined, EditOutlined, FileOutlined, FileTextOutlined} from "@ant-design/icons";
+import {Button, Card, List, Modal, Select, Table} from "antd";
+import './page.scss'
+import {ContainerOutlined, EditOutlined, FileOutlined, FileTextOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
+import {useState} from "react";
 
 interface DataType {
-    key: string;
+    id: string;
     icon: number;
     name: string;
     time: string;
@@ -56,7 +57,7 @@ const columns: ColumnsType<DataType> = [
 
 const data: DataType[] = [
     {
-        key: '1',
+        id: '1',
         icon: 1,
         name: 'C语言程序设计',
         time: '2023/7/28',
@@ -64,7 +65,7 @@ const data: DataType[] = [
         from: 'C语言程序设计',
     },
     {
-        key: '2',
+        id: '2',
         icon: 2,
         name: '安卓真难啊',
         time: '2023/7/28',
@@ -73,15 +74,43 @@ const data: DataType[] = [
     },
 ];
 
-
 export default function Page() {
-    // @ts-ignore
+    const [open, setOpen] = useState(false);
+    const [initLoading, setInitLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [listData, setListData] = useState(data);
+
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const hideModal = () => {
+        setOpen(false);
+    };
+
+    const onLoadMore = () => {
+    };
+
+    const loadMore =
+        !initLoading && !loading ? (
+            <div
+                style={{
+                    textAlign: 'center',
+                    marginTop: 12,
+                    height: 32,
+                    lineHeight: '32px',
+                }}
+            >
+                <Button onClick={onLoadMore}>loading more</Button>
+            </div>
+        ) : null;
+
     return (
-        <div className={"app_container"}>
+        <div className={"app_container app-dashboard"}>
             <div className={"title"}>开始</div>
             <div className={"flex_middle"} style={{justifyContent: "start"}}>
                 <Card style={{border: '2px #01B96B solid', marginRight: 20}} bodyStyle={{display: 'flex', padding: 10}}
-                      hoverable>
+                      hoverable onClick={showModal}>
                     <EditOutlined style={{fontSize: 20}}/>
 
                     <div className={'function'}>
@@ -89,6 +118,33 @@ export default function Page() {
                         <div className={'function_content'}>文档、思维导图、视频</div>
                     </div>
                 </Card>
+
+                <Modal
+                    title="新建笔记"
+                    open={open}
+                    onOk={hideModal}
+                    onCancel={hideModal}
+                    footer={null}
+                    okText="确认"
+                    cancelText="取消"
+                >
+                    <div>选择一个知识库</div>
+                    <List
+                        loading={initLoading}
+                        loadMore={loadMore}
+                        dataSource={listData}
+                        renderItem={(item) => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    avatar={item.icon == 1 ? <FileOutlined style={{fontSize: 24}}/> :
+                                        <FileTextOutlined style={{fontSize: 24}}/>}
+                                    description={item.name}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </Modal>
+
                 <Card style={{border: '2px #01B96B solid'}} bodyStyle={{display: 'flex', padding: 10}} hoverable>
                     <ContainerOutlined style={{fontSize: 20}}/>
 
@@ -108,22 +164,22 @@ export default function Page() {
                         <div className={'classify_type'}>
                             <Select
                                 defaultValue="1"
-                                style={{ width: 120 }}
+                                style={{width: 120}}
                                 bordered={false}
                                 options={[
-                                    { value: '1', label: '文档' },
-                                    { value: '2', label: '思维导图' },
+                                    {value: '1', label: '文档'},
+                                    {value: '2', label: '思维导图'},
                                 ]}
                             />
                         </div>
                         <div className={'classify_from'}>
                             <Select
                                 defaultValue="1"
-                                style={{ width: 120 }}
+                                style={{width: 120}}
                                 bordered={false}
                                 options={[
-                                    { value: '1', label: 'C语言程序设计' },
-                                    { value: '2', label: 'Android移动开发' },
+                                    {value: '1', label: 'C语言程序设计'},
+                                    {value: '2', label: 'Android移动开发'},
                                 ]}
                             />
                         </div>

@@ -1,3 +1,4 @@
+const {join} = require("path");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     async redirects() {
@@ -8,6 +9,9 @@ const nextConfig = {
                 permanent: true,
             },
         ]
+    },
+    sassOptions: {
+        includePaths: [join(__dirname, 'styles')],
     },
 }
 
