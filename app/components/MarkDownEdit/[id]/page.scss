@@ -1,0 +1,16 @@
+.markdown-note-header {
+  padding: 15px !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftItem {
+  display: flex;
+  align-items: center;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

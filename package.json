@@ -5,11 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 8000",
     "lint": "next lint"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.15.0",
+    "@marktext/muya": "^0.2.2",
     "@types/node": "20.4.4",
     "@types/react": "18.2.16",
     "@types/react-dom": "18.2.7",
@@ -24,6 +25,7 @@
     "react-dom": "18.2.0",
     "sass": "^1.64.1",
     "tailwindcss": "3.3.3",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "vditor": "^3.9.6"
   }
 }

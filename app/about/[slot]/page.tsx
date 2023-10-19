@@ -2,18 +2,22 @@
 
 import {Button} from "antd";
 import {useRouter} from "next/navigation";
+import {Auth} from "@/app/components/Auth/Auth";
 
-export default function Page() {
+function Page() {
     const router = useRouter()
+
     const startClick = () => {
-        router.push('/dashboard')
+        router.push('/dashboard/slot')
     }
     return (
         <>
             <h1>
                 首页
-                <Button onClick={startClick}>进入学习随记</Button>
+                {/*<Button onClick={startClick}>进入学习随记</Button>*/}
             </h1>
         </>
     )
 }
+
+export default Page

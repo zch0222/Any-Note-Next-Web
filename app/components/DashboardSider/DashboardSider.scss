@@ -1,0 +1,21 @@
+.dashboard_sider_header {
+  padding-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .sider_header_avatar {
+    margin-left: 10px;
+    border-radius: 50%;
+  }
+}
+
+.dashboard_sider_search {
+  padding-bottom: 24px;
+}
+
+em {
+  color: #2f54eb;
+  font-weight: bold;
+  margin: 0 4px;
+}

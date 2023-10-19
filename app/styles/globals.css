@@ -45,3 +45,7 @@ body {
     font-family: SourceHanSansSC-regular, sans-serif;
     margin-bottom: 30px;
 }
+
+.hover {
+    cursor: pointer;
+}

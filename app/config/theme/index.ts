@@ -17,9 +17,9 @@ export const dashboardSiderTheme: ThemeConfig = {
     components: {
         Menu: {
             itemBg: 'rgba(239, 239, 239, 0)',
-            itemSelectedColor: 'white',
+            // itemSelectedColor: "rgb(211, 235, 220)",
             itemActiveBg: '#01B96B',
-            colorItemBgSelected: '#01B96B'
+            // colorItemBgSelected: '#01B96B'
         },
         Input: {
             colorBgContainer: '#EFEFEF'

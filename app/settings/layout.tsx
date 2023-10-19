@@ -4,6 +4,7 @@ import AntdRegistry from "@/app/lib/AntdRegistry";
 import {dashboardSiderTheme, theme} from "@/app/config/theme";
 import DashboardSider from "@/app/components/DashboardSider/DashboardSider";
 import ErrorBoundary from "antd/es/alert/ErrorBoundary";
+import SettingsSider from "@/app/components/SettingsSider/SettingsSider";
 
 export const metadata = {
     title: '工作台 · 学习随记',
@@ -29,7 +30,7 @@ export default function RootLayout({
             <ConfigProvider theme={theme}>
                 <div style={{minHeight: '100vh', display: "flex"}}>
                     <ConfigProvider theme={dashboardSiderTheme}>
-                        <DashboardSider/>
+                        <SettingsSider/>
                     </ConfigProvider>
                     <Layout style={{minHeight: '100vh', background: '#FBFBFB', padding: 30}}>
                         {children}

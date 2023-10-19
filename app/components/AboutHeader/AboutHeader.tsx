@@ -9,23 +9,23 @@ import Image from "next/image";
 const items: MenuProps['items'] = [
     {
         label: '首页',
-        key: '/about',
+        key: '/about/slot',
     },
     {
         label: '个人使用',
-        key: '/about/personal',
+        key: '/about/personal/slot',
     },
     {
         label: '笔记模板',
-        key: '/about/templates',
+        key: '/about/templates/slot',
     },
     {
         label: '关于我们',
-        key: '/about/careers',
+        key: '/about/careers/slot',
     },
     {
         label: '帮助',
-        key: '/about/help',
+        key: '/about/help/slot',
     },
 ];
 
@@ -38,16 +38,20 @@ const Header = () => {
         router.push(e.key)
     };
 
+    const logIn = () => {
+        router.push('/login')
+    }
+
     return (
         <>
             <Row justify={"space-around"} align={"middle"} style={{padding: 15}}>
                 <div className={"flex_middle"}>
                     <Image src={'/icons/LOGO.png'} alt={''} width={35} height={35}/>
-                    <div style={{fontWeight:"bold",marginLeft:15,fontSize:18}}>学习随记</div>
+                    <div style={{fontWeight: "bold", marginLeft: 15, fontSize: 18}}>学习随记</div>
                 </div>
                 <Menu style={{width: 500, display: 'flex', justifyContent: 'space-around', borderBottom: 'none'}}
                       onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}/>
-                <Button type={"primary"} size={"large"}>登录/注册</Button>
+                <Button type={"primary"} size={"large"} onClick={logIn}>登录/注册</Button>
             </Row>
         </>
     )

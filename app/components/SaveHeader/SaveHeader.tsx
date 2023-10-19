@@ -4,6 +4,7 @@ import type {MenuProps} from 'antd';
 import {Menu, Row} from "antd";
 import {useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
+import './SaveHeader.scss'
 
 const items: MenuProps['items'] = [
     {
@@ -27,11 +28,11 @@ const Header = () => {
 
     return (
         <>
-            <div>
+            <div className={'save-header-title'}>
                 收藏
             </div>
             <Row justify={"start"} align={"middle"}
-                 style={{padding: '15px 15px 0 15px', borderBottom: '1px black solid'}}>
+                 style={{borderBottom: '1px #D5D5D5 solid'}}>
                 <Menu style={{
                     width: 200,
                     display: 'flex',
