@@ -1,6 +1,6 @@
 'use client'
 
-import {Button, Card, Form, Input, message, Spin} from 'antd';
+import {Button, Card, Form, Input, message} from 'antd';
 import {useState} from "react";
 import {logIn} from "@/app/api/auth";
 import {useRouter} from "next/navigation";
@@ -35,14 +35,19 @@ export default function Page() {
         setLoginLoading(true)
         logIn(loginForm).then(res => {
             if (res.data.code == '00000') {
+                ls.set('userData', {
+                    avatar: res.data.data.avatar,
+                    nickname: res.data.data.nickname,
+                    role: res.data.data.role,
+                    username: res.data.data.username
+                })
                 ls.set('accessToken', res.data.data.token.accessToken);
                 router.push('/dashboard/slot');
             } else {
                 setLoginLoading(false)
-                warning('账号或密码输入错误')
             }
         }).catch(error => {
-            warning('出现异常请检查网络或进行反馈')
+            setLoginLoading(false)
         })
     }
 
@@ -54,7 +59,7 @@ export default function Page() {
         console.log('Failed:', errorInfo);
     };
 
-    const warning = (content:any) => {
+    const warning = (content: any) => {
         messageApi.open({
             type: 'warning',
             content: content,

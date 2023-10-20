@@ -5,6 +5,7 @@ import {CheckOutlined, CloseOutlined, EyeInvisibleOutlined, EyeTwoTone} from "@a
 import {useEffect, useState} from "react";
 import {resetPasswordApi} from "@/app/api/auth";
 import {ListData} from "@/app/config/types";
+import './styles.scss'
 
 export default function Page() {
 
@@ -14,7 +15,16 @@ export default function Page() {
     const [currentType, setCurrentType] = useState(0)
     const [passwordForm, setPasswordForm] = useState({
         oldPassword: '',
-        newPassword: ''
+        newPassword: '',
+        newPasswordAgain: ''
+    })
+    const [passwordRules, setPasswordRules] = useState({
+        newPassword: {
+            status: undefined,
+        },
+        newPasswordAgain: {
+            status: undefined,
+        }
     })
 
     const [listData, setListData] = useState<ListData[]>([
@@ -44,16 +54,24 @@ export default function Page() {
 
         switch (currentType) {
             case 0:
-                resetPasswordApi(passwordForm).then(res => {
-                    if (res.data.code == '00000') {
-                        setConfirmLoading(false)
-                        setIsModalOpen(false);
-                        messages('success', '更改成功')
-                    } else {
-                        setConfirmLoading(false);
-                        messages('warning', res.data.msg)
+                if (passwordForm.newPassword === passwordForm.newPasswordAgain) {
+                    const data = {
+                        oldPassword: passwordForm.oldPassword,
+                        newPassword: passwordForm.newPassword
                     }
-                })
+                    resetPasswordApi(data).then(res => {
+                        if (res.data.code == '00000') {
+                            setConfirmLoading(false)
+                            setIsModalOpen(false);
+                            messages('success', '更改成功')
+                        } else {
+                            setConfirmLoading(false);
+                        }
+                    })
+                } else {
+                    messages('error', '两次新密码输入不一致，请重新输入');
+                    setConfirmLoading(false);
+                }
         }
     };
 
@@ -67,6 +85,58 @@ export default function Page() {
             ...passwordForm,
             [name]: value,
         });
+    }
+
+    const handlePasswordBlur = (e: any) => {
+        function isPasswordValid(password: any) {
+            // 正则表达式模式，用于匹配密码
+            const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[\x20-\x7E]{8,15}$/;
+
+            // 使用正则表达式测试密码
+            return passwordPattern.test(password);
+        }
+
+
+        const {name, value} = e.target;
+
+        console.log(value)
+        console.log(isPasswordValid(value))
+        switch (name) {
+            case 'newPassword':
+                if (isPasswordValid(value)) {
+                    setPasswordRules({
+                        ...passwordRules,
+                        [name]: {
+                            status: undefined
+                        }
+                    })
+                } else {
+                    setPasswordRules({
+                        ...passwordRules,
+                        [name]: {
+                            status: 'error'
+                        }
+                    })
+                }
+                break;
+            case 'newPasswordAgain':
+                if (value == passwordForm.newPassword) {
+                    setPasswordRules({
+                        ...passwordRules,
+                        [name]: {
+                            status: undefined
+                        }
+                    })
+                } else {
+                    setPasswordRules({
+                        ...passwordRules,
+                        [name]: {
+                            status: 'error'
+                        }
+                    })
+                }
+
+        }
     }
 
     useEffect(() => {
@@ -100,17 +170,32 @@ export default function Page() {
                 title={listData[currentType]?.title} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <Space direction="vertical" style={{width: '100%'}}>
                     <Input.Password
-                        placeholder="input password"
+                        placeholder="输入旧密码"
                         name={'oldPassword'}
                         value={passwordForm.oldPassword}
                         onChange={handlePasswordFormChange}
+                        onBlur={handlePasswordBlur}
                         iconRender={(visible) => (visible ? <EyeTwoTone/> : <EyeInvisibleOutlined/>)}/>
                     <Input.Password
-                        placeholder="input password"
+                        status={passwordRules.newPassword.status}
+                        placeholder="输入新密码"
                         name={'newPassword'}
                         value={passwordForm.newPassword}
                         onChange={handlePasswordFormChange}
+                        onBlur={handlePasswordBlur}
                         iconRender={(visible) => (visible ? <EyeTwoTone/> : <EyeInvisibleOutlined/>)}/>
+                    {passwordRules.newPassword.status == 'error' ?
+                        <div className={'error'}>密码必须是8到15位，且包含大写字母、小写字母和数字</div> : <></>}
+                    <Input.Password
+                        status={passwordRules.newPasswordAgain.status}
+                        placeholder="重新输入新密码"
+                        name={'newPasswordAgain'}
+                        value={passwordForm.newPasswordAgain}
+                        onChange={handlePasswordFormChange}
+                        onBlur={handlePasswordBlur}
+                        iconRender={(visible) => (visible ? <EyeTwoTone/> : <EyeInvisibleOutlined/>)}/>
+                    {passwordRules.newPasswordAgain.status == 'error' ?
+                        <div className={'error'}>两次密码输入不一样，请重新输入</div> : <></>}
                 </Space>
             </Modal>
         </div>

@@ -26,7 +26,7 @@ export default function Page() {
             pageSize: 10
         }
         getBookTaskList(params).then(res => {
-            setBookTask(res.data.data.rows);
+            setBookTask(res?.data.data.rows);
             setLoading(true);
         })
     }

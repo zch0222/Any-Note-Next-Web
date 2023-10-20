@@ -1,8 +1,8 @@
 'use client'
 
-import {Button, Card, FloatButton, List, Modal, Select, Spin, Table} from "antd";
+import {Button, Card, FloatButton, List, Modal, notification, Select} from "antd";
 import './page.scss'
-import {ContainerOutlined, EditOutlined, FileOutlined, FileTextOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, FileOutlined, FileTextOutlined, PlusOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import type {Note} from "@/app/config/types";
 import {Book} from "@/app/config/types";
@@ -12,6 +12,7 @@ import Link from "next/link";
 import {useRouter} from "next/navigation";
 import "../../styles/globals.css"
 import Loading from "@/app/components/Loading";
+import {getAnnouncementsApi, redAnnouncementsApi} from "@/app/api/system";
 
 const columns: ColumnsType<Note> = [
     {
@@ -31,8 +32,8 @@ const columns: ColumnsType<Note> = [
         key: 'title',
         align: "left",
         ellipsis: true,
-        render: (title: any,record:any) => {
-            return <Link href={'/components/MarkDownEdit/'+ record.id}>{title}</Link>
+        render: (title: any, record: any) => {
+            return <Link href={'/components/MarkDownEdit/' + record.id}>{title}</Link>
         }
     },
     {
@@ -63,7 +64,36 @@ export default function Page() {
         })
     }
 
+    const getAnnouncements = () => {
+
+        getAnnouncementsApi().then(res => {
+
+            if (res.data.data.hasUnReadAnnouncement == 1) {
+                const announcement = res.data.data.announcement
+
+                notification.open({
+                    message: announcement.title,
+                    description: announcement.content,
+                    placement:"top",
+                    btn: <Button onClick={() => handleConfirm(announcement.id)}>确定</Button>,
+                    onClose: () => handleConfirm(announcement.id)
+                });
+            }
+        })
+    }
+
+    const handleConfirm = (id: any) => {
+        const data = {
+            announcementId: id
+        }
+
+        redAnnouncementsApi(data).then(res => {
+            notification.destroy()
+        })
+    }
+
     useEffect(() => {
+        getAnnouncements()
         getData()
     }, [])
 

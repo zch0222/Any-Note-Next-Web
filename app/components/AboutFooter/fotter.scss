@@ -1,0 +1,32 @@
+/* Style for the footer */
+.footer {
+  box-sizing: border-box;
+  //background-color: #333; /* 背景颜色 */
+  //color: #fff; /* 文本颜色 */
+  text-align: center; /* 文本居中对齐 */
+  padding: 16px; /* 页脚内边距 */
+  position: absolute; /* 使页脚粘在页面底部 */
+  width: 100%; /* 页脚宽度占满整个页面 */
+  bottom: 0; /* 粘在底部 */
+}
+
+/* Style for hyperlinks in the footer (optional) */
+.footer a {
+  color: #fff; /* 链接颜色 */
+  text-decoration: none; /* 去除下划线 */
+}
+
+/* Style for hyperlinks in the footer on hover (optional) */
+.footer a:hover {
+  text-decoration: underline; /* 添加下划线效果 */
+}
+
+.span-copy{
+  font-size: 14px;
+  color: #8a8f8d;
+}
+
+.span-no {
+  font-size: 14px;
+  color: #585a5a;
+}

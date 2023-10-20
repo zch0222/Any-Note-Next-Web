@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import {Inter} from 'next/font/google'
 import AntdRegistry from "@/app/lib/AntdRegistry";
 import Header from "@/app/components/AboutHeader/AboutHeader";
+import Footer from "@/app/components/AboutFooter/AboutFooter"
 import {theme} from "@/app/config/theme";
 import {ConfigProvider} from "antd";
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             <ConfigProvider theme={theme}>
                 <Header/>
                 {children}
+                <Footer/>
             </ConfigProvider>
         </AntdRegistry>
         </body>

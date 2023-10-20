@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {ls} from '@/app/utils/storage'
-import {logIn} from "@/app/api/auth";
 import {useRouter} from "next/navigation";
+import {message, Modal} from "antd";
 
 let isReloginShow = false;
 
@@ -34,7 +34,6 @@ service.interceptors.request.use(config => {
             data: typeof config.data === 'object' ? JSON.stringify(config.data) : config.data,
             time: new Date().getTime()
         }
-
     }
 
     return config
@@ -42,32 +41,30 @@ service.interceptors.request.use(config => {
     console.log(error)
 })
 
-// service.interceptors.response.use(res => {
-//         // 未设置状态码则默认成功状态
-//         const code = res.status || 200
-//         console.log(res)
-//
-//         if (code === 401) {
-//             return res.data
-//         }
-//     }, error => {
-//         // if (error.response.status == 401) {
-//         //     const router = useRouter()
-//         //     console.log(1)
-//         //     const loginForm = {
-//         //         username: 'adminX',
-//         //         password: '123456'
-//         //     }
-//         //     logIn(loginForm).then(res => {
-//         //         if (res.data.code == '00000') {
-//         //             ls.set('accessToken', res.data.data.token.accessToken);
-//         //             router.push('/dashboard');
-//         //         }
-//         //     }).catch(error => {
-//         //         console.log(error)
-//         //     })
-//         // }
-//     }
-// )
+// @ts-ignore
+service.interceptors.response.use(res => {
+        // 未设置状态码则默认成功状态
+        const code = res.data.code || '00000'
+        if (code != '00000') {
+            message.error(res.data.msg)
+            return res
+        } else {
+            return res
+        }
+    }, error => {
+        if (error.response.status == 401) {
+            Modal.error({
+                title: '提示',
+                content: '登录状态过期或未登录',
+                okText: '重新登录',
+                onOk: () => {
+                    window.location.href='https://www.anynote.tech/login';
+                }
+            });
+        } else {
+            return error.response
+        }
+    }
+)
 
 export default service

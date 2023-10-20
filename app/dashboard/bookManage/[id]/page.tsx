@@ -76,6 +76,10 @@ function ContentCard(props: any) {
     const [messageApi, contextHolder] = message.useMessage();
     const [arrow, setArrow] = useState('Show');
     const token = ls.get('accessToken');
+    const [uploadStatus, setUploadStatus] = useState({
+        status: true,
+        url: ''
+    })
     const uploadProps: UploadProps = {
         name: 'users',
         action: 'https://api.anynote.tech/api/note/manage/bases/import',
@@ -90,8 +94,11 @@ function ContentCard(props: any) {
                 console.log(info.file, info.fileList);
             }
             if (info.file.status === 'done') {
+                setUploadStatus({
+                    status: false,
+                    url: info.file.response.data.excelUrl
+                })
                 message.success(`${info.file.name} file uploaded successfully`);
-                window.open(info.file.response.data.excelUrl, '_blank')
             } else if (info.file.status === 'error') {
                 message.error(`${info.file.name} file upload failed.`);
             }
@@ -128,7 +135,7 @@ function ContentCard(props: any) {
 
         const usersListForm = {
             knowledgeBaseId: props.bookId,
-            pageSize: 10,
+            pageSize: 1000,
             page: 1
         }
         getBookUsersList(usersListForm).then(res => {
@@ -137,7 +144,7 @@ function ContentCard(props: any) {
 
         const noteTaskForm = {
             page: 1,
-            pageSize: 10,
+            pageSize: 1000,
             knowledgeBaseId: props.bookId
         }
 
@@ -154,7 +161,17 @@ function ContentCard(props: any) {
 
     const handleOk = () => {
         addNoteTask(taskForm).then(res => {
-            console.log(res);
+            message.success('任务创建成功！').then(res =>{
+                const noteTaskForm = {
+                    page: 1,
+                    pageSize: 100,
+                    knowledgeBaseId: props.bookId
+                }
+
+                getAdminBookTaskList(noteTaskForm).then(res => {
+                    setNoteTask(res.data.data.rows);
+                })
+            });
         })
 
         setIsModalOpen(false);
@@ -271,6 +288,7 @@ function ContentCard(props: any) {
                                             导入成员名单
                                         </Button>
                                     </Upload>
+                                    <Button type={"primary"} disabled={uploadStatus.status} onClick={() => window.open(uploadStatus.url)}>下载导入成员名单</Button>
                                     <Button
                                         onClick={() => window.open('https://anynote.obs.cn-east-3.myhuaweicloud.com/anynote_%20Shanghai/knowledge_base/files/import_user_template.xlsx')}>下载导入模板</Button>
                                 </Space>
@@ -316,6 +334,7 @@ function ContentCard(props: any) {
                                     </Modal>
                                 </div>
                                 <List
+                                    pagination={{position: 'bottom', align: 'end', pageSize: 10}}
                                     grid={{
                                         column: 5,
                                         gutter: 16,

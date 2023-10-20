@@ -1,11 +1,12 @@
 "use client"
 
 import type {MenuProps} from 'antd';
-import {Avatar, Button, Card, Layout, Menu} from "antd";
+import {Avatar, Button, Card, Layout, Menu, Space} from "antd";
 import {InboxOutlined, LeftOutlined} from '@ant-design/icons';
 import {useEffect, useState} from 'react'
 import {usePathname, useRouter} from "next/navigation";
 import "../../styles/globals.css"
+import {ls} from '@/app/utils/storage'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -26,12 +27,14 @@ function getItem(
 }
 
 const SettingsSider = () => {
+    const [userData, setUserData] = useState<any>()
     const router = useRouter();
     const pathName = usePathname();
     const [defaultActive, setDefaultActive] = useState([pathName]);
     const [selectKey, setSelectKey] = useState([pathName]);
 
     const items: MenuItem[] = [
+        // getItem('个人信息', '/settings/profile/slot', <InboxOutlined/>),
         getItem('账户管理', '/settings/account/slot', <InboxOutlined/>),
     ];
 
@@ -47,6 +50,7 @@ const SettingsSider = () => {
 
 
     useEffect(() => {
+        setUserData(ls.get('userData'))
         setSelectKey([pathName])
     }, [pathName])
 
@@ -61,7 +65,10 @@ const SettingsSider = () => {
                     </Button>
 
                     <Card bodyStyle={{background: 'rgba(239, 239, 239, 0.8)'}}>
-                        <Avatar src={'/icons/icon.jpg'} size={50}/>
+                        <Space>
+                            <Avatar src={'/icons/icon.jpg'} size={50}/>
+                            <span>{userData?.nickname}</span>
+                        </Space>
                     </Card>
                 </div>
 

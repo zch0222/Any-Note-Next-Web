@@ -21,11 +21,13 @@ import '@/app/styles/globals.css'
 import Loading from "@/app/components/Loading";
 import {vditorCdn} from "@/app/config";
 
+
 export default function MarkDownEdit({params}: { params: { id: string } }) {
 
     const router = useRouter();
     const [vd, setVd] = useState<Vditor>()
     const editor = useRef(null);
+
 
     const [loading, setLoading] = useState(false);
     const [saveLoading, setSaveLoading] = useState(false);
@@ -40,6 +42,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
                 setLoading(true);
             } else {
                 error(res.data.msg);
+                router.back();
             }
         })
     }
@@ -49,7 +52,10 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
         const lines = input.split('\n');
 
         // 获取第一行作为 title
-        const title = lines[0].replace(/^#\s*/, '');
+        let title = lines[0].replace(/^#\s*/, '');
+        if (title.length > 20) {
+            title = title.substring(0, 20) + '...';
+        }
 
         // 获取其余行作为 content
         const content = lines.slice(1).join('\n').trim();
@@ -65,13 +71,17 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
         return updateNoteById({id: params.id}, newContent)
     }
 
-    const upLoadImage = (file: any) => {
-        const data = {
-            image: file,
-            noteId: params.id
-        }
-        upLoadImageById(data).then(res => {
-
+    const upLoadImage = (file: any, vdt: any): any => {
+        console.log(file)
+        console.log(file[0])
+        let formatData = new FormData();
+        formatData.append('image', file[0]);
+        formatData.append('noteId', params.id);
+        upLoadImageById(formatData).then(res => {
+            console.log(res.data.data.image)
+            vdt.insertValue(res.data.data.image);
+        }).catch(error => {
+            return error
         })
     }
 
@@ -81,7 +91,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
             content: errorContent,
             duration: 2.5,
         }).then(() => {
-            if (errorContent != '笔记已提交，无法继续编辑!') {
+            if (errorContent != '笔记已提交，无法继续编辑!' || errorContent != '没有权限访问笔记') {
                 router.back();
             }
         });
@@ -107,7 +117,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
 
     useEffect(() => {
         if (editor.current) {
-            const vditor = new Vditor('vditor', {
+            const vditor: any = new Vditor('vditor', {
                 height: "95vh",
                 mode: "wysiwyg", //及时渲染模式m
                 blur(value: string) {
@@ -127,7 +137,59 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
                     vditor.setValue(noteContent);
                     setVd(vditor)
                 },
-                cdn: vditorCdn
+                cdn: vditorCdn,
+                upload: {
+                    accept: "image/*",
+                    multiple: false,
+                    filename(name) {
+                        return name
+                        //       .replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, "")
+                        //     .replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, "")
+                        //    .replace("/\\s/g", "");
+                    },
+                    handler(files) {
+                        return upLoadImage(files, vditor);
+                    },
+                    url: 'https://api.anynote.tech/api/note/notes/images'
+                },
+                toolbar: ["emoji",
+                    "headings",
+                    "bold",
+                    "italic",
+                    "strike",
+                    "link",
+                    "|",
+                    "list",
+                    "ordered-list",
+                    "check",
+                    "outdent",
+                    "indent",
+                    "|",
+                    "quote",
+                    "line",
+                    "code",
+                    "inline-code",
+                    "insert-before",
+                    "insert-after",
+                    "|",
+                    "upload",
+                    "table",
+                    "|",
+                    "undo",
+                    "redo",
+                    "|",
+                    "fullscreen",
+                    "edit-mode",
+                    {
+                        name: "more",
+                        toolbar: [
+                            "both",
+                            "code-theme",
+                            "content-theme",
+                            "export",
+                            "outline",
+                        ],
+                    }]
             })
         }
 
@@ -165,6 +227,7 @@ function EditHeader(props: any) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {
+        setFunctionPopoverOpen(false)
         setIsModalOpen(true);
     };
 
@@ -173,7 +236,9 @@ function EditHeader(props: any) {
     };
 
     const handleCancel = () => {
+        console.log(1111)
         setIsModalOpen(false);
+        console.log(isModalOpen)
     };
 
     const getData = () => {
@@ -232,7 +297,7 @@ function EditHeader(props: any) {
 
     const deleteNoteFun = () => {
         const params = {
-            id: props.noteData.knowledgeBaseId
+            id: props.noteData.id
         }
 
         deleteNote(params).then(res => {
@@ -253,9 +318,6 @@ function EditHeader(props: any) {
             </div>
             <div>
                 <Button onClick={showModal} danger>删除</Button>
-                <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <p>确认删除吗？</p>
-                </Modal>
             </div>
         </div>
     );
@@ -317,6 +379,10 @@ function EditHeader(props: any) {
                         <PicLeftOutlined className={'hover'} style={{fontSize: 16}}/>
                     </Button>
                 </Popover>
+
+                <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <p>确认删除吗？</p>
+                </Modal>
             </Space>
         </Header>
     )

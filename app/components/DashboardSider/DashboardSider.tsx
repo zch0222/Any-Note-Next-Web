@@ -1,15 +1,16 @@
 "use client"
 
 import type {MenuProps, SelectProps} from 'antd';
-import {Button, Input, Layout, Menu, Modal, Popover, Row, Select, Space} from "antd";
+import {Avatar, Button, Card, Input, Layout, Menu, Modal, Popover, Row, Select, Space} from "antd";
 import {
     BellFilled,
     BookOutlined,
     ClockCircleOutlined,
     FolderOutlined,
-    InboxOutlined, LoginOutlined,
-    SearchOutlined, SettingOutlined,
-    StarOutlined
+    InboxOutlined,
+    LoginOutlined,
+    SearchOutlined,
+    SettingOutlined
 } from '@ant-design/icons';
 import {useEffect, useState} from 'react'
 import './DashboardSider.scss'
@@ -45,6 +46,7 @@ const DashboardSider = () => {
     const [defaultActive, setDefaultActive] = useState([pathName]);
     const [selectKey, setSelectKey] = useState([pathName]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userData, setUserData] = useState<any>()
 
     const items: MenuItem[] = [
         getItem('开始', '/dashboard/slot', <ClockCircleOutlined/>),
@@ -54,7 +56,7 @@ const DashboardSider = () => {
             setSelectKey([key]);
             router.push(key)
         }}>知识库</div>, '', <InboxOutlined/>, bookData),
-        getItem('任务', '/dashboard/personalTask/slot', <StarOutlined/>),
+        // getItem('任务', '/dashboard/personalTask/slot', <StarOutlined/>),
         // getItem('收藏', '/dashboard/save', <StarOutlined/>),
         // getItem('看看别人', '/dashboard/explore', <PlusOutlined/>),
     ];
@@ -87,42 +89,13 @@ const DashboardSider = () => {
     const childBooks: any = [];
 
     const getAllBooks = () => {
+        setUserData(ls.get('userData'))
         const params = {
             page: '1',
             pageSize: '10'
         }
         getBooks(params).then(res => {
-            res.data.data.rows.forEach((item: Book) => {
-
-                const params = {
-                    knowledgeBaseId: item.id,
-                    page: 1,
-                    pageSize: 100
-                }
-
-                const taskList: any = []
-
-                getBookTaskList(params).then(res => {
-                    if (res.data.data.rows.length > 0 && item.permissions == '1') {
-                        res.data.data.rows.forEach((item: any) => {
-                            taskList.push(getItem(item.taskName, '/dashboard/taskDetail/' + item.id))
-                        })
-
-                        childBooks.push(getItem(<div onClick={(e) => {
-                                const key = '/dashboard/bookDetail/' + item.id;
-                                e.stopPropagation();
-                                setSelectKey([key]);
-                                router.push(key)
-                            }}>{item.knowledgeBaseName}</div>, '/dashboard/bookDetail/' + item.id,
-                            <FolderOutlined/>, taskList))
-                    } else {
-                        childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
-                            <FolderOutlined/>))
-                    }
-                })
-            })
-
-            getPersonalBooks(params).then(res => {
+            if (res?.data.code == '00000') {
                 res.data.data.rows.forEach((item: Book) => {
 
                     const params = {
@@ -140,8 +113,8 @@ const DashboardSider = () => {
                             })
 
                             childBooks.push(getItem(<div onClick={(e) => {
-                                    const key = '/dashboard/bookDetail/' + item.id
-                                    e.stopPropagation()
+                                    const key = '/dashboard/bookDetail/' + item.id;
+                                    e.stopPropagation();
                                     setSelectKey([key]);
                                     router.push(key)
                                 }}>{item.knowledgeBaseName}</div>, '/dashboard/bookDetail/' + item.id,
@@ -150,10 +123,42 @@ const DashboardSider = () => {
                             childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
                                 <FolderOutlined/>))
                         }
-                        setBookData(childBooks);
                     })
                 })
-            })
+
+                getPersonalBooks(params).then(res => {
+                    res.data.data.rows.forEach((item: Book) => {
+
+                        const params = {
+                            knowledgeBaseId: item.id,
+                            page: 1,
+                            pageSize: 100
+                        }
+
+                        const taskList: any = []
+
+                        getBookTaskList(params).then(res => {
+                            if (res.data.data.rows.length > 0 && item.permissions == '1') {
+                                res.data.data.rows.forEach((item: any) => {
+                                    taskList.push(getItem(item.taskName, '/dashboard/taskDetail/' + item.id))
+                                })
+
+                                childBooks.push(getItem(<div onClick={(e) => {
+                                        const key = '/dashboard/bookDetail/' + item.id
+                                        e.stopPropagation()
+                                        setSelectKey([key]);
+                                        router.push(key)
+                                    }}>{item.knowledgeBaseName}</div>, '/dashboard/bookDetail/' + item.id,
+                                    <FolderOutlined/>, taskList))
+                            } else {
+                                childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
+                                    <FolderOutlined/>))
+                            }
+                            setBookData(childBooks);
+                        })
+                    })
+                })
+            }
         })
 
     }
@@ -169,10 +174,20 @@ const DashboardSider = () => {
     const content = (
         <div className={'hover'}>
             <Row>
-                <Button type={"text"} onClick={() =>router.push('/settings/account/slot')} icon={<SettingOutlined />}>账户设置</Button>
+                <Card bodyStyle={{padding: 5}}>
+                    <Space>
+                        <Avatar src={'/icons/icon.jpg'} size={50}/>
+                        <span>{userData?.nickname}</span>
+                    </Space>
+                </Card>
+            </Row>
+
+            <Row>
+                <Button type={"text"} onClick={() => router.push('/settings/account/slot')}
+                        icon={<SettingOutlined/>}>账户设置</Button>
             </Row>
             <Row>
-                <Button type={"text"} onClick={logOut} icon={<LoginOutlined />}>退出登录</Button>
+                <Button type={"text"} onClick={logOut} icon={<LoginOutlined/>}>退出登录</Button>
             </Row>
         </div>
     );
@@ -187,7 +202,7 @@ const DashboardSider = () => {
                         <div style={{fontWeight: "bold", marginLeft: 10}}>学习随记</div>
                     </div>
 
-                    <Popover content={content} placement={"bottomRight"}>
+                    <Popover content={content} placement={"bottomLeft"}>
                         <div className={"flex_middle"}>
                             <BellFilled className={"sider_header_news"} style={{color: "#01B96B"}}/>
                             <Image className={"sider_header_avatar"} src={'/icons/icon.jpg'} alt={""} width={35}
@@ -216,7 +231,9 @@ const SearchInput: React.FC<{ placeholder: string; style: React.CSSProperties }>
     const [value, setValue] = useState<string>();
     const router = useRouter();
     const handleSearch = (newValue: string) => {
-        searchNotes(newValue);
+        if (newValue != '') {
+            searchNotes(newValue);
+        }
     };
 
     const handleChange = (newValue: string) => {
@@ -236,7 +253,8 @@ const SearchInput: React.FC<{ placeholder: string; style: React.CSSProperties }>
         }
 
         searchNotesApi(params).then(res => {
-            if (res.data.code == '00000') {
+            console.log(res)
+            if (res && res.data.code == '00000') {
                 setData(res.data.data.rows);
             }
         })

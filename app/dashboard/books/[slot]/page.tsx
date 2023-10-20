@@ -58,8 +58,6 @@ function FunctionGroup() {
             console.log(res)
             hideModal();
         })
-        console.log(booKForm);
-
     }
 
     return (
@@ -123,7 +121,6 @@ function BookList() {
     }
 
     const handleDetail = (id: string) => {
-        console.log(id)
         router.push('/dashboard/bookDetail/' + id)
     }
 
@@ -137,14 +134,13 @@ function BookList() {
                 <h3>组织知识库</h3>
                 <List
                     grid={{
-                        column: 6,
                         gutter: 16,
                         xs: 1,
                         sm: 2,
                     }}
                     dataSource={bookData}
                     renderItem={(item) => (
-                        <List.Item>
+                        <List.Item style={{maxWidth:200,minWidth:150}}>
                             <Card
                                 hoverable
                                 cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}
@@ -157,14 +153,13 @@ function BookList() {
                 <h3>非组织知识库</h3>
                 <List
                     grid={{
-                        column: 6,
                         gutter: 16,
                         xs: 1,
                         sm: 2,
                     }}
                     dataSource={personalBookData}
                     renderItem={(item) => (
-                        <List.Item>
+                        <List.Item style={{maxWidth:200,minWidth:150}}>
                             <Card
                                 hoverable
                                 cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}

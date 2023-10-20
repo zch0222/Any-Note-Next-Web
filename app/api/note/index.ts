@@ -43,7 +43,6 @@ export function updateBookApi(params:any,data: any) {
 }
 
 
-
 // 根据id获取知识库下的笔记列表
 export function getNotesById(params: any, data: any) {
     return request({
@@ -73,6 +72,9 @@ export function updateNoteById(params: any, data: any) {
 // 根据id上传笔记图片
 export function upLoadImageById(data: any) {
     return request({
+        headers:{
+          "Content-Type":'multipart/form-data'
+        },
         url: '/api/note/notes/images',
         method: 'post',
         data

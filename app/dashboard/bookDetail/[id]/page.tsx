@@ -21,7 +21,7 @@ export default function Page({params}: { params: { id: string } }) {
     const getData = async () => {
         const data = {
             page: '1',
-            pageSize: '10'
+            pageSize: '1000'
         }
 
         getBookById(params).then(res => {
@@ -35,7 +35,7 @@ export default function Page({params}: { params: { id: string } }) {
         const listParams = {
             knowledgeBaseId: params.id,
             page: 1,
-            pageSize: 10
+            pageSize: 1000
         }
         await getBookTaskList(listParams).then(res => {
             setBookTask(res.data.data.rows);
@@ -120,7 +120,8 @@ export default function Page({params}: { params: { id: string } }) {
                                     avatar={
                                         <FileOutlined style={{fontSize: 24}}/>
                                     }
-                                    title={<Link href={'/components/MarkDownEdit/' + item.id}>{item.title}</Link>}
+                                    title={item.notePermissions == 0 ? <div>{item.title}</div> :
+                                        <Link href={'/components/MarkDownEdit/' + item.id}>{item.title}</Link>}
                                     description={formatDate(item.updateTime)}
                                 />
                                 <div> {item.notePermissions == 7 ?
@@ -134,6 +135,7 @@ export default function Page({params}: { params: { id: string } }) {
 
                     <div className={"title"}>任务</div>
                     <List
+                        pagination={{position: 'bottom', align: 'end', pageSize: 8}}
                         grid={{
                             column: 4,
                             gutter: 16,
@@ -146,7 +148,7 @@ export default function Page({params}: { params: { id: string } }) {
                                 <Card
                                     hoverable
                                     onClick={() => {
-                                        if(bookData?.permissions == '1')
+                                        if (bookData?.permissions == '1')
                                             router.push('/dashboard/taskDetail/' + item.id)
                                     }}
                                 >
