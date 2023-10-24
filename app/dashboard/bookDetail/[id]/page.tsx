@@ -144,7 +144,7 @@ export default function Page({params}: { params: { id: string } }) {
                         }}
                         dataSource={bookTask}
                         renderItem={(item: any) => (
-                            <List.Item>
+                            <List.Item style={{minWidth:200}}>
                                 <Card
                                     hoverable
                                     onClick={() => {

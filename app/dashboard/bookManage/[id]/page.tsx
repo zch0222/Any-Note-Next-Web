@@ -370,16 +370,16 @@ function ContentCard(props: any) {
                                 </div>
                                 <List
                                     loading={loadingList.tasks}
-                                    pagination={{position: 'bottom', align: 'end', pageSize: 10}}
+                                    pagination={{position: 'bottom', align: 'end', pageSize: 8}}
                                     grid={{
-                                        column: 5,
+                                        column:4,
                                         gutter: 16,
                                         xs: 1,
                                         sm: 2,
                                     }}
                                     dataSource={noteTask}
                                     renderItem={(item: any) => (
-                                        <List.Item onClick={() => handleTaskDetail(item.id)}>
+                                        <List.Item onClick={() => handleTaskDetail(item.id)} style={{minWidth:200}}>
                                             <Tooltip placement={"right"} title={'查看提交详情'} arrow={mergedArrow}>
                                                 <Card
                                                     hoverable
