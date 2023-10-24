@@ -112,6 +112,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
     };
 
     useEffect(() => {
+        console.log()
         getData();
     }, [])
 
@@ -119,7 +120,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
         if (editor.current) {
             const vditor: any = new Vditor('vditor', {
                 height: "95vh",
-                mode: "wysiwyg", //及时渲染模式m
+                mode: "ir", //及时渲染模式m
                 blur(value: string) {
                     setSaveLoading(true)
                     blurEdit(formatString(value)).then(res => {

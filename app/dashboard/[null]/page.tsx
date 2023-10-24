@@ -73,7 +73,7 @@ export default function Page() {
 
                 notification.open({
                     message: announcement.title,
-                    description: announcement.content,
+                    description: <div dangerouslySetInnerHTML={{__html: announcement.content}}/>,
                     placement:"top",
                     btn: <Button onClick={() => handleConfirm(announcement.id)}>确定</Button>,
                     onClose: () => handleConfirm(announcement.id)

@@ -5,6 +5,7 @@ import Header from "@/app/components/AboutHeader/AboutHeader";
 import Footer from "@/app/components/AboutFooter/AboutFooter"
 import {theme} from "@/app/config/theme";
 import {ConfigProvider} from "antd";
+import React from "react";
 
 const inter = Inter({subsets: ['latin']})
 export const metadata = {

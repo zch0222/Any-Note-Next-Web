@@ -71,6 +71,10 @@ function ContentCard(props: any) {
 
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [loadingList, setLoadingList] = useState({
+        members: false,
+        tasks: false
+    })
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -98,9 +102,28 @@ function ContentCard(props: any) {
                     status: false,
                     url: info.file.response.data.excelUrl
                 })
-                message.success(`${info.file.name} file uploaded successfully`);
+
+                setLoadingList({
+                    ...loadingList,
+                    members: true
+                })
+
+                const usersListForm = {
+                    knowledgeBaseId: props.bookId,
+                    pageSize: 1000,
+                    page: 1
+                }
+
+                getBookUsersList(usersListForm).then(res => {
+                    setMembersList(res.data.data.rows);
+                    setLoadingList({
+                        ...loadingList,
+                        members: false
+                    })
+                    message.success(`${info.file.name} 导入成功！`)
+                })
             } else if (info.file.status === 'error') {
-                message.error(`${info.file.name} file upload failed.`);
+                message.error(`${info.file.name} 导入失败！`);
             }
         },
     };
@@ -161,7 +184,12 @@ function ContentCard(props: any) {
 
     const handleOk = () => {
         addNoteTask(taskForm).then(res => {
-            message.success('任务创建成功！').then(res =>{
+            setLoadingList({
+                ...loadingList,
+                tasks: true
+            })
+
+            if(res.data.code == '00000') {
                 const noteTaskForm = {
                     page: 1,
                     pageSize: 100,
@@ -170,8 +198,13 @@ function ContentCard(props: any) {
 
                 getAdminBookTaskList(noteTaskForm).then(res => {
                     setNoteTask(res.data.data.rows);
+                    setLoadingList({
+                        ...loadingList,
+                        tasks: false
+                    })
+                    message.success('任务创建成功！')
                 })
-            });
+            }
         })
 
         setIsModalOpen(false);
@@ -288,11 +321,13 @@ function ContentCard(props: any) {
                                             导入成员名单
                                         </Button>
                                     </Upload>
-                                    <Button type={"primary"} disabled={uploadStatus.status} onClick={() => window.open(uploadStatus.url)}>下载导入成员名单</Button>
+                                    <Button type={"primary"} disabled={uploadStatus.status}
+                                            onClick={() => window.open(uploadStatus.url)}>下载导入成员名单</Button>
                                     <Button
                                         onClick={() => window.open('https://anynote.obs.cn-east-3.myhuaweicloud.com/anynote_%20Shanghai/knowledge_base/files/import_user_template.xlsx')}>下载导入模板</Button>
                                 </Space>
                                 <List
+                                    loading={loadingList.members}
                                     pagination={{position: 'bottom', align: 'end'}}
                                     dataSource={membersList}
                                     renderItem={(item: any, index) => (
@@ -334,6 +369,7 @@ function ContentCard(props: any) {
                                     </Modal>
                                 </div>
                                 <List
+                                    loading={loadingList.tasks}
                                     pagination={{position: 'bottom', align: 'end', pageSize: 10}}
                                     grid={{
                                         column: 5,
