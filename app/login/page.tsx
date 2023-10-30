@@ -42,7 +42,7 @@ export default function Page() {
                     username: res.data.data.username
                 })
                 ls.set('accessToken', res.data.data.token.accessToken);
-                router.push('/dashboard/slot');
+                router.push('/dashboard');
             } else {
                 setLoginLoading(false)
             }

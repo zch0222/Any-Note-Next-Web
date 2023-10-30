@@ -17,9 +17,9 @@ import './DashboardSider.scss'
 import Image from "next/image";
 import {usePathname, useRouter} from "next/navigation";
 import {getBooks, getBookTaskList, getPersonalBooks, searchNotesApi} from "@/app/api/note";
-import {Book} from "@/app/config/types";
 import {ls} from "@/app/utils/storage"
 import "../../styles/globals.css"
+import {Book} from "@/app/config/types";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -49,9 +49,9 @@ const DashboardSider = () => {
     const [userData, setUserData] = useState<any>()
 
     const items: MenuItem[] = [
-        getItem('开始', '/dashboard/slot', <ClockCircleOutlined/>),
+        getItem('开始', '/dashboard', <ClockCircleOutlined/>),
         getItem(<div onClick={(e) => {
-            const key = '/dashboard/books/slot';
+            const key = '/dashboard/books';
             e.stopPropagation();
             setSelectKey([key]);
             router.push(key)
@@ -83,89 +83,110 @@ const DashboardSider = () => {
 
     const logOut = () => {
         ls.remove('accessToken');
-        router.push('/about/slot')
+        router.push('/about')
     }
 
-    const childBooks: any = [];
-
-    const getAllBooks = () => {
-        setUserData(ls.get('userData'))
+    const getAllBooks = async () => {
+        let childBooks: any = [];
+        setUserData(ls.get('userData'));
         const params = {
             page: '1',
             pageSize: '10'
-        }
-        getBooks(params).then(res => {
-            if (res?.data.code == '00000') {
-                res.data.data.rows.forEach((item: Book) => {
+        };
 
-                    const params = {
+        try {
+            const booksResponse = await getBooks(params);
+
+            if (booksResponse.data.code === '00000') {
+                const bookPromises = booksResponse.data.data.rows.map(async (item: Book) => {
+                    const taskList: any = [];
+                    const taskParams = {
                         knowledgeBaseId: item.id,
                         page: 1,
                         pageSize: 100
-                    }
+                    };
 
-                    const taskList: any = []
+                    const bookTaskResponse = await getBookTaskList(taskParams);
 
-                    getBookTaskList(params).then(res => {
-                        if (res.data.data.rows.length > 0 && item.permissions == '1') {
-                            res.data.data.rows.forEach((item: any) => {
-                                taskList.push(getItem(item.taskName, '/dashboard/taskDetail/' + item.id))
-                            })
+                    if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
+                        bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
+                            taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
+                        });
 
-                            childBooks.push(getItem(<div onClick={(e) => {
+                        childBooks.push(
+                            getItem(
+                                <div onClick={(e) => {
                                     const key = '/dashboard/bookDetail/' + item.id;
                                     e.stopPropagation();
                                     setSelectKey([key]);
-                                    router.push(key)
-                                }}>{item.knowledgeBaseName}</div>, '/dashboard/bookDetail/' + item.id,
-                                <FolderOutlined/>, taskList))
-                        } else {
-                            childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
-                                <FolderOutlined/>))
-                        }
-                    })
-                })
+                                    router.push(key);
+                                }}>
+                                    {item.knowledgeBaseName}
+                                </div>,
+                                '/dashboard/bookDetail/' + item.id,
+                                <FolderOutlined/>,
+                                taskList
+                            )
+                        );
+                    } else {
+                        childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
+                            <FolderOutlined/>));
+                    }
+                });
 
-                getPersonalBooks(params).then(res => {
-                    res.data.data.rows.forEach((item: Book) => {
+                const personalBooksResponse = await getPersonalBooks(params);
+                const personalBookPromises = personalBooksResponse.data.data.rows.map(async (item: Book) => {
+                    const taskList: any = [];
+                    const taskParams = {
+                        knowledgeBaseId: item.id,
+                        page: 1,
+                        pageSize: 100
+                    };
 
-                        const params = {
-                            knowledgeBaseId: item.id,
-                            page: 1,
-                            pageSize: 100
-                        }
+                    const bookTaskResponse = await getBookTaskList(taskParams);
 
-                        const taskList: any = []
+                    if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
+                        bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
+                            taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
+                        });
 
-                        getBookTaskList(params).then(res => {
-                            if (res.data.data.rows.length > 0 && item.permissions == '1') {
-                                res.data.data.rows.forEach((item: any) => {
-                                    taskList.push(getItem(item.taskName, '/dashboard/taskDetail/' + item.id))
-                                })
+                        childBooks.push(
+                            getItem(
+                                <div onClick={(e) => {
+                                    const key = '/dashboard/bookDetail/' + item.id;
+                                    e.stopPropagation();
+                                    setSelectKey([key]);
+                                    router.push(key);
+                                }}>
+                                    {item.knowledgeBaseName}
+                                </div>,
+                                '/dashboard/bookDetail/' + item.id,
+                                <FolderOutlined/>,
+                                taskList
+                            )
+                        );
+                    } else {
+                        childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
+                            <FolderOutlined/>));
+                    }
+                });
 
-                                childBooks.push(getItem(<div onClick={(e) => {
-                                        const key = '/dashboard/bookDetail/' + item.id
-                                        e.stopPropagation()
-                                        setSelectKey([key]);
-                                        router.push(key)
-                                    }}>{item.knowledgeBaseName}</div>, '/dashboard/bookDetail/' + item.id,
-                                    <FolderOutlined/>, taskList))
-                            } else {
-                                childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
-                                    <FolderOutlined/>))
-                            }
-                            setBookData(childBooks);
-                        })
-                    })
-                })
+                await Promise.all([...bookPromises, ...personalBookPromises]);
+
+                setBookData(childBooks);
             }
-        })
-
+        } catch (error) {
+            // Handle errors here
+        }
     }
 
     useEffect(() => {
         setSelectKey([pathName])
     }, [pathName])
+
+    useEffect(() => {
+
+    }, [bookData])
 
     useEffect(() => {
         getAllBooks();
@@ -183,7 +204,7 @@ const DashboardSider = () => {
             </Row>
 
             <Row>
-                <Button type={"text"} onClick={() => router.push('/settings/account/slot')}
+                <Button type={"text"} onClick={() => router.push('/settings/account')}
                         icon={<SettingOutlined/>}>账户设置</Button>
             </Row>
             <Row>

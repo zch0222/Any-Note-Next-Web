@@ -18,22 +18,24 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en">
-        <head>
-            <link rel="icon"
-                  href="/icons/LOGO.png"
-                  type="image"
-                  sizes="any"/>
-        </head>
-        <body className={inter.className}>
-        <AntdRegistry>
-            <ConfigProvider theme={theme}>
-                <Header/>
-                {children}
-                <Footer/>
-            </ConfigProvider>
-        </AntdRegistry>
-        </body>
-        </html>
+        // <html lang="en">
+        // <head>
+        //     <link rel="icon"
+        //           href="/icons/LOGO.png"
+        //           type="image"
+        //           sizes="any"/>
+        // </head>
+        // <body className={inter.className}>
+        // <AntdRegistry>
+        //     <ConfigProvider theme={theme}>
+        <>
+            <Header/>
+            {children}
+            <Footer/>
+        </>
+        //     </ConfigProvider>
+        // </AntdRegistry>
+        // </body>
+        // </html>
     )
 }

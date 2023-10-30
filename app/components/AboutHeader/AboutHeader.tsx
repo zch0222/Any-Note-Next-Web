@@ -9,23 +9,23 @@ import Image from "next/image";
 const items: MenuProps['items'] = [
     {
         label: '首页',
-        key: '/about/slot',
+        key: '/about',
     },
     {
         label: '个人使用',
-        key: '/about/personal/slot',
+        key: '/about/personal',
     },
     {
         label: '笔记模板',
-        key: '/about/templates/slot',
+        key: '/about/templates',
     },
     {
         label: '关于我们',
-        key: '/about/careers/slot',
+        key: '/about/careers',
     },
     {
         label: '帮助',
-        key: '/about/help/slot',
+        key: '/about/help',
     },
 ];
 

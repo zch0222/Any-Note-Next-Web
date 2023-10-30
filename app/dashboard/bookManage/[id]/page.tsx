@@ -18,13 +18,15 @@ import {
     UploadProps
 } from "antd";
 import {useEffect, useMemo, useState} from "react";
-import {AppstoreOutlined, FileOutlined, MailOutlined, TeamOutlined} from "@ant-design/icons";
+import {AppstoreOutlined, FileOutlined, FlagOutlined, MailOutlined, TeamOutlined} from "@ant-design/icons";
 import {addNoteTask, getAdminBookTaskList, getBookById, getBookUsersList, updateBookApi} from "@/app/api/note";
 import Meta from "antd/es/card/Meta";
 import FormItem from "antd/es/form/FormItem";
 import {ls} from "@/app/utils/storage";
 import Loading from "@/app/components/Loading";
 import {useRouter} from "next/navigation";
+import FunctionButton from "@/app/components/FunctionButton";
+import BlankLine from "@/app/components/BlankLine";
 
 const {TextArea} = Input;
 const {RangePicker} = DatePicker;
@@ -60,7 +62,7 @@ export default function Page({params}: { params: { id: string } }) {
         <>
             <h1>知识库管理</h1>
             <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}/>
-            <div style={{height: 50}}></div>
+            <BlankLine/>
             <ContentCard isCreated={current} bookId={params.id}/>
         </>
     )
@@ -353,9 +355,7 @@ function ContentCard(props: any) {
                         (
                             <div>
                                 <div>
-                                    <Button onClick={showModal}>
-                                        创建新任务
-                                    </Button>
+                                    <FunctionButton title={'创建新任务'} content={'名称、时间'} clickEvent={showModal} icon={<FlagOutlined style={{fontSize:20}}/>}/>
                                     <Modal title="创建任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                                         <Form>
                                             <FormItem name={'taskName'} label={'任务名称'}>

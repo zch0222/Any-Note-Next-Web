@@ -35,7 +35,7 @@ const SettingsSider = () => {
 
     const items: MenuItem[] = [
         // getItem('个人信息', '/settings/profile/slot', <InboxOutlined/>),
-        getItem('账户管理', '/settings/account/slot', <InboxOutlined/>),
+        getItem('账户管理', '/settings/account', <InboxOutlined/>),
     ];
 
 

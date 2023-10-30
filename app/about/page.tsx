@@ -3,13 +3,11 @@
 import {useRouter} from "next/navigation";
 import Image from "next/image";
 import {Row, Space} from "antd";
+import { notFound } from 'next/navigation'
 
 function Page() {
     const router = useRouter()
-
-    const startClick = () => {
-        router.push('/dashboard/slot')
-    }
+    // notFound()
     return (
         <>
             {/*<h1>*/}

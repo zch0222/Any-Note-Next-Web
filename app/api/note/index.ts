@@ -34,7 +34,7 @@ export function addBook(data: any) {
 }
 
 // 更新知识库
-export function updateBookApi(params:any,data: any) {
+export function updateBookApi(params: any, data: any) {
     return request({
         url: '/api/note/bases/' + params.id,
         method: 'put',
@@ -72,8 +72,8 @@ export function updateNoteById(params: any, data: any) {
 // 根据id上传笔记图片
 export function upLoadImageById(data: any) {
     return request({
-        headers:{
-          "Content-Type":'multipart/form-data'
+        headers: {
+            "Content-Type": 'multipart/form-data'
         },
         url: '/api/note/notes/images',
         method: 'post',
@@ -99,7 +99,7 @@ export function deleteNote(params: any) {
 }
 
 // 提交知识库任务
-export function submitNoteTask(data:any) {
+export function submitNoteTask(data: any) {
     return request({
         url: '/api/note/noteTasks/submit',
         method: 'post',
@@ -108,10 +108,19 @@ export function submitNoteTask(data:any) {
 }
 
 // 创建知识库任务
-export function addNoteTask(data:any) {
+export function addNoteTask(data: any) {
     return request({
         url: '/api/note/admin/noteTasks',
         method: 'post',
+        data
+    })
+}
+
+// 创建知识库任务
+export function updateNoteTaskApi(params: any, data: any) {
+    return request({
+        url: '/api/note/admin/noteTasks/' + params.id,
+        method: 'patch',
         data
     })
 }

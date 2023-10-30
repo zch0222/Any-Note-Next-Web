@@ -128,6 +128,13 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
                         setSaveLoading(false)
                     })
                 },
+                input(value: string) {
+                    setSaveLoading(true)
+                    blurEdit(formatString(value)).then(res => {
+
+                        setSaveLoading(false)
+                    })
+                },
                 focus(value: string) {
                     console.log(noteData.notePermissions)
                     if (noteData.notePermissions != 6 && noteData.notePermissions != 7) {

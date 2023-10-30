@@ -10,9 +10,10 @@ import {useEffect, useState} from "react";
 import {addNote, getBooks, getNotesById, getPersonalBooks} from "@/app/api/note";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import "../../styles/globals.css"
+import "../styles/globals.css"
 import Loading from "@/app/components/Loading";
 import {getAnnouncementsApi, redAnnouncementsApi} from "@/app/api/system";
+import FunctionButton from "@/app/components/FunctionButton";
 
 const columns: ColumnsType<Note> = [
     {
@@ -112,7 +113,7 @@ export default function Page() {
                 {/*               columns={columns}/>*/}
                 {/*    </div>*/}
                 {/*</div>*/}
-                <FloatButton style={{width: 50, height: 50}} icon={<PlusOutlined/>} type={"primary"}/>
+                {/*<FloatButton style={{width: 50, height: 50}} icon={<PlusOutlined/>} type={"primary"}/>*/}
             </> : <Loading/>
             }
         </div>
@@ -187,15 +188,7 @@ function FunctionGroup(props: any) {
 
     return (
         <div className={"flex_middle"} style={{justifyContent: "start"}}>
-            <Card style={{border: '2px #01B96B solid', marginRight: 20}} bodyStyle={{display: 'flex', padding: 10}}
-                  hoverable onClick={showModal}>
-                <EditOutlined style={{fontSize: 20}}/>
-
-                <div className={'function'}>
-                    <div className={'function_title'}>新建笔记</div>
-                    <div className={'function_content'}>文档、思维导图、视频</div>
-                </div>
-            </Card>
+            <FunctionButton title={'新建笔记'} content={'文档'} clickEvent={showModal} icon={<EditOutlined style={{fontSize: 20}}/>}/>
 
             <Modal
                 title="新建笔记"

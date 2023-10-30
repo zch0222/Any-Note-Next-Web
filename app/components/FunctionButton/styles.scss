@@ -1,0 +1,18 @@
+.function {
+  margin-left: 15px;
+  min-width: 200px;
+
+  .function_title {
+    color: rgba(16, 16, 16, 1);
+    font-size: 14px;
+    text-align: left;
+    font-family: SourceHanSansSC-regular, sans-serif;
+  }
+
+  .function_content {
+    color: rgba(154, 154, 154, 1);
+    font-size: 13px;
+    text-align: left;
+    font-family: SourceHanSansSC-regular, sans-serif;
+  }
+}

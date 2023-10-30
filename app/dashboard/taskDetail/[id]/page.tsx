@@ -2,18 +2,34 @@
 
 
 import {useEffect, useState} from "react";
-import {getSubmitTaskListApi, getTaskDetailApi} from "@/app/api/note";
+import {getSubmitTaskListApi, getTaskDetailApi, updateNoteTaskApi} from "@/app/api/note";
 import Loading from "@/app/components/Loading";
-import {Descriptions, List, Progress, Tag} from "antd";
+import {Button, DatePicker, Descriptions, Form, Input, List, message, Modal, Progress, Space, Tag} from "antd";
 import Link from "next/link";
+import FormItem from "antd/es/form/FormItem";
+import FunctionButton from "@/app/components/FunctionButton";
+import {SettingOutlined} from "@ant-design/icons";
+import BlankLine from "@/app/components/BlankLine";
+
+
+const {RangePicker} = DatePicker;
 
 export default function Page({params}: { params: { id: string } }) {
 
 
     const [taskDetail, setTaskDetail] = useState<any>([])
     const [submitList, setSubmitList] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [loading, setLoading] = useState(false);
+
+    const [taskForm, setTaskForm] = useState({
+        taskName: '',
+        startTime: '',
+        endTime: '',
+        id: params.id
+    })
+
 
     const getTaskDetail = async () => {
 
@@ -44,6 +60,53 @@ export default function Page({params}: { params: { id: string } }) {
     }, [])
 
 
+    const handleOk = () => {
+        updateNoteTaskApi(params, taskForm).then(res => {
+            if (res.data.code == '00000') {
+                message.success('修改成功')
+                setTaskDetail({
+                    ...taskDetail,
+                    taskName: taskForm.taskName,
+                    startTime: taskForm.startTime,
+                    endTime: taskForm.endTime,
+                })
+                setIsModalOpen(false);
+            }
+        })
+        setTaskForm({
+            taskName: '',
+            startTime: '',
+            endTime: '',
+            id: params.id
+        })
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setTaskForm({
+            taskName: '',
+            startTime: '',
+            endTime: '',
+            id: params.id
+        })
+    };
+
+    const onTaskChange = (e: any, timeString?: any) => {
+        if (timeString == undefined) {
+            const {name, value} = e.target;
+            setTaskForm((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+        } else {
+            setTaskForm((prevState) => ({
+                ...prevState,
+                ['startTime']: timeString[0],
+                ['endTime']: timeString[1]
+            }))
+        }
+    }
+
     return (
         <div>
             {
@@ -52,6 +115,23 @@ export default function Page({params}: { params: { id: string } }) {
                         <h1>
                             {taskDetail.taskName}
                         </h1>
+                        <Space>
+                            <FunctionButton title={'任务管理'} clickEvent={() => setIsModalOpen(true)}
+                                            content={'名称、时间'}
+                                            icon={<SettingOutlined style={{fontSize: 20}}/>}/>
+                        </Space>
+                        <BlankLine/>
+                        <Modal title="修改任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                            <Form>
+                                <FormItem name={'taskName'} label={'任务名称'}>
+                                    <Input name={'taskName'} value={taskForm.taskName} onChange={onTaskChange}/>
+                                </FormItem>
+
+                                <FormItem name={'startTme'} label={'起止时间'}>
+                                    <RangePicker name={'startTme'} onChange={onTaskChange}/>
+                                </FormItem>
+                            </Form>
+                        </Modal>
                         <Descriptions>
                             <Descriptions.Item label={'任务状态'}>
                                 {/*{taskDetail.status == 0 ? (*/}
