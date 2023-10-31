@@ -23,7 +23,7 @@ export function createLocalStorage(options?: { expire?: number | null }) {
     }
 
     function get(key: string) {
-        if (window) {
+        if (typeof window) {
             const json = window.localStorage.getItem(key)
             if (json) {
                 let storageData: StorageData | null = null

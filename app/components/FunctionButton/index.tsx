@@ -21,7 +21,7 @@ const FunctionButton: React.FC<FunctionButtonProps> = ({
     return (
         <div>
             <Space>
-                <Card style={{border: '2px #01B96B solid', marginRight: 20}} bodyStyle={{display: 'flex', padding: '5px 10px'}}
+                <Card style={{border: '1px #01B96B solid', marginRight: 20}} bodyStyle={{display: 'flex', padding: '5px 10px'}}
                       hoverable onClick={clickEvent}>
                     {icon}
 

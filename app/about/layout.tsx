@@ -1,10 +1,7 @@
 import '../styles/globals.css'
 import {Inter} from 'next/font/google'
-import AntdRegistry from "@/app/lib/AntdRegistry";
 import Header from "@/app/components/AboutHeader/AboutHeader";
 import Footer from "@/app/components/AboutFooter/AboutFooter"
-import {theme} from "@/app/config/theme";
-import {ConfigProvider} from "antd";
 import React from "react";
 
 const inter = Inter({subsets: ['latin']})
@@ -28,11 +25,13 @@ export default function RootLayout({
         // <body className={inter.className}>
         // <AntdRegistry>
         //     <ConfigProvider theme={theme}>
-        <>
+        <div style={{display:"flex",flexDirection:"column"}}>
             <Header/>
-            {children}
+            <div>
+                {children}
+            </div>
             <Footer/>
-        </>
+        </div>
         //     </ConfigProvider>
         // </AntdRegistry>
         // </body>

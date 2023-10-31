@@ -1,7 +1,6 @@
 "use client"
 import {
     Button,
-    Card,
     DatePicker,
     Form,
     Input,
@@ -10,61 +9,224 @@ import {
     MenuProps,
     message,
     Modal,
-    Progress,
     Space,
     Tag,
     Tooltip,
     Upload,
     UploadProps
 } from "antd";
-import {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {AppstoreOutlined, FileOutlined, FlagOutlined, MailOutlined, TeamOutlined} from "@ant-design/icons";
 import {addNoteTask, getAdminBookTaskList, getBookById, getBookUsersList, updateBookApi} from "@/app/api/note";
-import Meta from "antd/es/card/Meta";
 import FormItem from "antd/es/form/FormItem";
 import {ls} from "@/app/utils/storage";
 import Loading from "@/app/components/Loading";
 import {useRouter} from "next/navigation";
 import FunctionButton from "@/app/components/FunctionButton";
 import BlankLine from "@/app/components/BlankLine";
+import TaskItemCard from "@/app/components/TaskCard";
 
 const {TextArea} = Input;
 const {RangePicker} = DatePicker;
 
-export default function Page({params}: { params: { id: string } }) {
+interface InformationCardProps {
+    formData: any,
+    changeEvent: any,
+    clickEvent: any
+}
 
-    const items: MenuProps['items'] = [
-        {
-            label: '基础信息',
-            key: 'information',
-            icon: <MailOutlined/>,
-        },
-        {
-            label: '成员设置',
-            key: 'member',
-            icon: <TeamOutlined/>,
-        },
-        {
-            label: '任务管理',
-            key: 'task',
-            icon: <AppstoreOutlined/>,
-        }
-    ];
+interface MemberCardProps {
+    uploadProps: any,
+    loadingList: any,
+    membersList: any,
+    uploadStatus: any
+}
 
-    const [current, setCurrent] = useState('information');
+interface TaskCardProps {
+    changeEvent: any,
+    loadingList: any,
+    noteTask: any,
+    showModal: any,
+    isModalOpen: any,
+    handleOk: any,
+    handleCancel: any,
+}
 
-    const onClick: MenuProps['onClick'] = (e) => {
-        console.log('click ', e);
-        setCurrent(e.key);
-    };
+const InformationCard: React.FC<InformationCardProps> = ({
+                                                             clickEvent,
+                                                             changeEvent,
+                                                             formData
+                                                         }) => {
+    return (
+        <div style={{width: '60vw'}}>
+            <div>名称</div>
+            <div style={{maxWidth: 250}}>
+                <Input name='name' placeholder={'知识库名称'} value={formData.name}
+                       onChange={changeEvent}
+                       style={{
+                           margin: '20px 0', borderRadius: '6px',
+                           fontSize: '15px'
+                       }} size={"large"}></Input>
+            </div>
+            <div>
+                简介
+            </div>
+            <TextArea name='detail' placeholder={'知识库简介 (选填)'} value={formData.detail}
+                      onChange={changeEvent} rows={10}
+                      style={{margin: '20px 0'}}></TextArea>
+
+            <Button onClick={clickEvent} type={"primary"}>更新信息</Button>
+        </div>
+    )
+}
+
+const MemberCard: React.FC<MemberCardProps> = ({
+                                                   uploadProps,
+                                                   loadingList,
+                                                   membersList,
+                                                   uploadStatus
+                                               }) => {
 
     return (
-        <>
-            <h1>知识库管理</h1>
-            <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}/>
-            <BlankLine/>
-            <ContentCard isCreated={current} bookId={params.id}/>
-        </>
+        <div>
+            <Space>
+                <Upload {...uploadProps}>
+                    <Button>
+                        导入成员名单
+                    </Button>
+                </Upload>
+                <Button type={"primary"} disabled={uploadStatus.status}
+                        onClick={() => window.open(uploadStatus.url)}>下载导入成员名单</Button>
+                <Button
+                    onClick={() => window.open('https://anynote.obs.cn-east-3.myhuaweicloud.com/anynote_%20Shanghai/knowledge_base/files/import_user_template.xlsx')}>下载导入模板</Button>
+            </Space>
+            <List
+                loading={loadingList.members}
+                pagination={{position: 'bottom', align: 'end'}}
+                dataSource={membersList}
+                renderItem={(item: any, index) => (
+                    <List.Item>
+                        <List.Item.Meta
+                            avatar={
+                                <FileOutlined style={{fontSize: 24}}/>
+                            }
+                            title={item.nickname}
+                            description={item.username}
+                        />
+                        <div>{item.permissions == 1 ?
+                            <Tag color="success">管理（查看、编辑）</Tag> : item.permissions == 2 ?
+                                <Tag color="processing">编辑（查看）</Tag> : item.permissions == 3 ?
+                                    <Tag color="warning">查看</Tag> :
+                                    <Tag color="default">无</Tag>}
+                        </div>
+                    </List.Item>
+                )}
+            />
+        </div>
+    )
+}
+
+const TaskCard: React.FC<TaskCardProps> = ({
+                                               changeEvent,
+                                               loadingList,
+                                               noteTask,
+                                               showModal,
+                                               isModalOpen,
+                                               handleOk,
+                                               handleCancel,
+                                           }) => {
+    const [arrow, setArrow] = useState('Show');
+    const router = useRouter();
+
+    const mergedArrow = useMemo(() => {
+        if (arrow === 'Hide') {
+            return false;
+        }
+
+        if (arrow === 'Show') {
+            return true;
+        }
+
+        return {
+            pointAtCenter: true,
+        };
+    }, [arrow]);
+
+    const handleTaskDetail = (id: any) => {
+        router.push('/dashboard/taskDetail/' + id)
+    }
+
+    return (
+        <div>
+            <div>
+                <FunctionButton title={'创建新任务'} content={'名称、时间'}
+                                clickEvent={showModal}
+                                icon={<FlagOutlined style={{fontSize: 20}}/>}/>
+                <Modal title="创建任务" open={isModalOpen} onOk={handleOk}
+                       onCancel={handleCancel}>
+                    <Form>
+                        <FormItem name={'taskName'} label={'任务名称'}>
+                            <Input name={'taskName'} onChange={changeEvent}/>
+                        </FormItem>
+
+                        <FormItem name={'startTme'} label={'起止时间'}>
+                            <RangePicker name={'startTme'} onChange={changeEvent}/>
+                        </FormItem>
+                    </Form>
+                </Modal>
+            </div>
+            <List
+                loading={loadingList.tasks}
+                pagination={{position: 'bottom', align: 'end', pageSize: 8}}
+                grid={{
+                    column: 4,
+                    gutter: 16,
+                    xs: 1,
+                    sm: 2,
+                }}
+                dataSource={noteTask}
+                renderItem={(item: any) => (
+                    <List.Item onClick={() => handleTaskDetail(item.id)}
+                               style={{minWidth: 200}}>
+                        <Tooltip placement={"right"} title={'查看提交详情'} arrow={mergedArrow}>
+                            <TaskItemCard cardData={item} isManager={true}/>
+                            {/*<Card*/}
+                            {/*    hoverable*/}
+                            {/*>*/}
+                            {/*    <Meta title={item.taskName}*/}
+                            {/*          description={*/}
+                            {/*              <Form>*/}
+                            {/*                  <FormItem label={'任务状态'}>*/}
+                            {/*                      /!*{item.status == 0 ? (*!/*/}
+                            {/*                      /!*    <Tag color="#87d068">进行中</Tag>) : (*!/*/}
+                            {/*                      /!*    <Tag color="#f50">已结束</Tag>)}*!/*/}
+                            {/*                      {new Date(item.endTime) > new Date() ? (*/}
+                            {/*                          <Tag color="#87d068">进行中</Tag>) : (*/}
+                            {/*                          <Tag color="#f50">已结束</Tag>)}*/}
+                            {/*                  </FormItem>*/}
+                            {/*                  <FormItem label={'起止时间'}>*/}
+                            {/*                      <div>{item.startTime.substring(0, 10)} - {item.endTime.substring(0, 10)}</div>*/}
+                            {/*                  </FormItem>*/}
+                            {/*                  <FormItem label={'总人数'}>*/}
+                            {/*                      <div>{item.needSubmitCount}</div>*/}
+                            {/*                  </FormItem>*/}
+                            {/*                  <FormItem label={'已提交人数'}>*/}
+                            {/*                      <div>{item.submittedCount}</div>*/}
+                            {/*                  </FormItem>*/}
+                            {/*                  <FormItem label={'提交进度'}>*/}
+                            {/*                      <div style={{width: 170}}>*/}
+                            {/*                          <Progress*/}
+                            {/*                              percent={item.submissionProgress * 100}*/}
+                            {/*                              size="small"/>*/}
+                            {/*                      </div>*/}
+                            {/*                  </FormItem>*/}
+                            {/*              </Form>}*/}
+                            {/*    />*/}
+                            {/*</Card>*/}
+                        </Tooltip>
+                    </List.Item>
+                )}/>
+        </div>
     )
 }
 
@@ -78,14 +240,13 @@ function ContentCard(props: any) {
         tasks: false
     })
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
-    const [arrow, setArrow] = useState('Show');
     const token = ls.get('accessToken');
     const [uploadStatus, setUploadStatus] = useState({
         status: true,
         url: ''
     })
+
     const uploadProps: UploadProps = {
         name: 'users',
         action: 'https://api.anynote.tech/api/note/manage/bases/import',
@@ -144,7 +305,6 @@ function ContentCard(props: any) {
     })
 
     const [membersList, setMembersList] = useState([]);
-    const [submitList, setSubmitList] = useState([]);
 
     const [noteTask, setNoteTask] = useState([]);
 
@@ -191,7 +351,7 @@ function ContentCard(props: any) {
                 tasks: true
             })
 
-            if(res.data.code == '00000') {
+            if (res.data.code == '00000') {
                 const noteTaskForm = {
                     page: 1,
                     pageSize: 100,
@@ -267,24 +427,6 @@ function ContentCard(props: any) {
         })
     }
 
-    const handleTaskDetail = (id: any) => {
-        router.push('/dashboard/taskDetail/' + id)
-    }
-
-    const mergedArrow = useMemo(() => {
-        if (arrow === 'Hide') {
-            return false;
-        }
-
-        if (arrow === 'Show') {
-            return true;
-        }
-
-        return {
-            pointAtCenter: true,
-        };
-    }, [arrow]);
-
     useEffect(() => {
         getData()
     }, [])
@@ -295,132 +437,61 @@ function ContentCard(props: any) {
 
     return (
         <>
-            {loading ? <div>
-                {
-                    key == 'information' ? (
-                        <div style={{width: '60vw'}}>
-                            {contextHolder}
-                            <div>
-                                名称
-                            </div>
-                            <TextArea name='name' placeholder={'知识库名称'} value={informationForm.name}
-                                      onChange={onInformationChange} rows={3}
-                                      style={{margin: '20px 0'}}></TextArea>
-                            <div>
-                                简介
-                            </div>
-                            <TextArea name='detail' placeholder={'知识库简介 (选填)'} value={informationForm.detail}
-                                      onChange={onInformationChange} rows={10}
-                                      style={{margin: '20px 0'}}></TextArea>
+            {loading ?
+                <div>
+                    {contextHolder}
+                    {
+                        key == 'information' ? (
+                            <InformationCard formData={informationForm} changeEvent={onInformationChange}
+                                             clickEvent={updateBook}/>
+                        ) : key == 'member' ? (
+                                <MemberCard uploadProps={uploadProps} loadingList={loadingList} membersList={membersList}
+                                            uploadStatus={uploadStatus}/>
+                            ) :
+                            (
+                                <TaskCard changeEvent={onTaskChange}
+                                          loadingList={loadingList} noteTask={noteTask} showModal={showModal}
+                                          isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel}/>
+                            )
+                    }
+                </div> : <Loading/>}
+        </>
+    )
+}
 
-                            <Button onClick={() => updateBook()}>保存设置</Button>
-                        </div>
-                    ) : key == 'member' ? (
-                            <div>
-                                <Space>
-                                    <Upload {...uploadProps}>
-                                        <Button>
-                                            导入成员名单
-                                        </Button>
-                                    </Upload>
-                                    <Button type={"primary"} disabled={uploadStatus.status}
-                                            onClick={() => window.open(uploadStatus.url)}>下载导入成员名单</Button>
-                                    <Button
-                                        onClick={() => window.open('https://anynote.obs.cn-east-3.myhuaweicloud.com/anynote_%20Shanghai/knowledge_base/files/import_user_template.xlsx')}>下载导入模板</Button>
-                                </Space>
-                                <List
-                                    loading={loadingList.members}
-                                    pagination={{position: 'bottom', align: 'end'}}
-                                    dataSource={membersList}
-                                    renderItem={(item: any, index) => (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                avatar={
-                                                    <FileOutlined style={{fontSize: 24}}/>
-                                                }
-                                                title={item.nickname}
-                                                description={item.username}
-                                            />
-                                            <div>{item.permissions == 1 ?
-                                                <Tag color="success">管理（查看、编辑）</Tag> : item.permissions == 2 ?
-                                                    <Tag color="processing">编辑（查看）</Tag> : item.permissions == 3 ?
-                                                        <Tag color="warning">查看</Tag> :
-                                                        <Tag color="default">无</Tag>}
-                                            </div>
-                                        </List.Item>
-                                    )}
-                                />
-                            </div>
-                        ) :
-                        (
-                            <div>
-                                <div>
-                                    <FunctionButton title={'创建新任务'} content={'名称、时间'} clickEvent={showModal} icon={<FlagOutlined style={{fontSize:20}}/>}/>
-                                    <Modal title="创建任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                                        <Form>
-                                            <FormItem name={'taskName'} label={'任务名称'}>
-                                                <Input name={'taskName'} onChange={onTaskChange}/>
-                                            </FormItem>
+export default function Page({params}: { params: { id: string } }) {
 
-                                            <FormItem name={'startTme'} label={'起止时间'}>
-                                                <RangePicker name={'startTme'} onChange={onTaskChange}/>
-                                            </FormItem>
-                                        </Form>
-                                    </Modal>
-                                </div>
-                                <List
-                                    loading={loadingList.tasks}
-                                    pagination={{position: 'bottom', align: 'end', pageSize: 8}}
-                                    grid={{
-                                        column:4,
-                                        gutter: 16,
-                                        xs: 1,
-                                        sm: 2,
-                                    }}
-                                    dataSource={noteTask}
-                                    renderItem={(item: any) => (
-                                        <List.Item onClick={() => handleTaskDetail(item.id)} style={{minWidth:200}}>
-                                            <Tooltip placement={"right"} title={'查看提交详情'} arrow={mergedArrow}>
-                                                <Card
-                                                    hoverable
-                                                >
-                                                    <Meta title={item.taskName}
-                                                          description={
-                                                              <Form>
-                                                                  <FormItem label={'任务状态'}>
-                                                                      {/*{item.status == 0 ? (*/}
-                                                                      {/*    <Tag color="#87d068">进行中</Tag>) : (*/}
-                                                                      {/*    <Tag color="#f50">已结束</Tag>)}*/}
-                                                                      {new Date(item.endTime) > new Date() ? (
-                                                                          <Tag color="#87d068">进行中</Tag>) : (
-                                                                          <Tag color="#f50">已结束</Tag>)}
-                                                                  </FormItem>
-                                                                  <FormItem label={'起止时间'}>
-                                                                      <div>{item.startTime.substring(0, 10)} - {item.endTime.substring(0, 10)}</div>
-                                                                  </FormItem>
-                                                                  <FormItem label={'总人数'}>
-                                                                      <div>{item.needSubmitCount}</div>
-                                                                  </FormItem>
-                                                                  <FormItem label={'已提交人数'}>
-                                                                      <div>{item.submittedCount}</div>
-                                                                  </FormItem>
-                                                                  <FormItem label={'提交进度'}>
-                                                                      <div style={{width: 170}}>
-                                                                          <Progress
-                                                                              percent={item.submissionProgress * 100}
-                                                                              size="small"/>
-                                                                      </div>
-                                                                  </FormItem>
-                                                              </Form>}
-                                                    />
-                                                </Card>
-                                            </Tooltip>
-                                        </List.Item>
-                                    )}/>
-                            </div>
-                        )
-                }
-            </div> : <Loading/>}
+    const items: MenuProps['items'] = [
+        {
+            label: '基础信息',
+            key: 'information',
+            icon: <MailOutlined/>,
+        },
+        {
+            label: '成员设置',
+            key: 'member',
+            icon: <TeamOutlined/>,
+        },
+        {
+            label: '任务管理',
+            key: 'task',
+            icon: <AppstoreOutlined/>,
+        }
+    ];
+
+    const [current, setCurrent] = useState('information');
+
+    const onClick: MenuProps['onClick'] = (e) => {
+        console.log('click ', e);
+        setCurrent(e.key);
+    };
+
+    return (
+        <>
+            <h1>知识库管理</h1>
+            <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}/>
+            <BlankLine/>
+            <ContentCard isCreated={current} bookId={params.id}/>
         </>
     )
 }

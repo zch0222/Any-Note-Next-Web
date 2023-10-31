@@ -216,7 +216,7 @@ const DashboardSider = () => {
     return (
         <>
             <Sider width={255} theme={"light"}
-                   style={{background: 'rgba(239, 239, 239, 0.8)', padding: 15, boxSizing: "border-box"}}>
+                   style={{background: 'rgb(250,250,250)', padding: 15, boxSizing: "border-box"}}>
                 <div className={"dashboard_sider_header"}>
                     <div className={"flex_middle"}>
                         <Image src={'/icons/LOGO.png'} alt={''} width={35} height={35}/>

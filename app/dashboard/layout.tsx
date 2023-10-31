@@ -30,7 +30,7 @@ export default function RootLayout({
                 <ConfigProvider theme={dashboardSiderTheme}>
                     <DashboardSider/>
                 </ConfigProvider>
-                <Layout style={{minHeight: '100vh', background: '#FBFBFB', padding: 30}}>
+                <Layout style={{minHeight: '100vh', background: 'white', padding: 30}}>
                     {children}
                 </Layout>
             </div>

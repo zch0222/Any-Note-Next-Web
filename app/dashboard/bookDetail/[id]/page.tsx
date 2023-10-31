@@ -12,6 +12,7 @@ import Loading from "@/app/components/Loading";
 import FunctionButton from "@/app/components/FunctionButton";
 import BlankLine from "@/app/components/BlankLine";
 import {formatDate} from "@/app/utils";
+import TaskItemCard from "@/app/components/TaskCard";
 
 
 interface NoteListProps {
@@ -72,50 +73,12 @@ const TaskList: React.FC<TaskListProps> = ({
                 }}
                 dataSource={taskData}
                 renderItem={(item: any) => (
-                    <List.Item style={{minWidth: 200}}>
-                        <Card
-                            hoverable
-                            onClick={() => {
-                                if (permissions == '1')
-                                    router.push('/dashboard/taskDetail/' + item.id)
-                            }}
-                        >
-                            <Meta title={item.taskName}
-                                  description={
-                                      <Form>
-                                          <FormItem label={'任务状态'}>
-                                              {/*{item.status == 0 ? (*/}
-                                              {/*    <Tag color="#87d068">进行中</Tag>) : (*/}
-                                              {/*    <Tag color="#f50">已结束</Tag>)}*/}
-                                              {new Date(item.endTime) > new Date() ? (
-                                                  <Tag color="#87d068">进行中</Tag>) : (
-                                                  <Tag color="#f50">已结束</Tag>)}
-                                          </FormItem>
-                                          <FormItem label={'起止时间'}>
-                                              <div>{item.startTime.substring(0, 10)} - {item.endTime.substring(0, 10)}</div>
-                                          </FormItem>
-                                          <FormItem label={'发布人'}>
-                                              <div>{item.taskCreatorNickname}</div>
-                                          </FormItem>
-                                          <FormItem label={'提交状态'}>
-                                              <div>{item.submissionStatus == 0 ? (
-                                                  <Tag bordered={false} color="success">已提交</Tag>) : (
-                                                  <Tag bordered={false}
-                                                       color="processing">未提交</Tag>)}</div>
-                                          </FormItem>
-                                          <FormItem label={'提交的笔记'}>
-                                              <div>{item.submissionStatus == 0 ? (
-                                                  <Link
-                                                      href={'/components/MarkDownEdit/' + item.submissionNoteId}
-                                                      onClick={(e) => {
-                                                          e.stopPropagation();
-                                                      }}>查看</Link>) : (
-                                                  <Tag bordered={false}
-                                                       color="processing">暂无笔记</Tag>)}</div>
-                                          </FormItem>
-                                      </Form>}
-                            />
-                        </Card>
+                    <List.Item style={{minWidth: 200}}
+                               onClick={() => {
+                                   if (permissions == '1')
+                                       router.push('/dashboard/taskDetail/' + item.id)
+                               }}>
+                        <TaskItemCard cardData={item}/>
                     </List.Item>
                 )}/>
         </div>
