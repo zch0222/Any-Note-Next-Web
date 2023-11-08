@@ -4,7 +4,8 @@ import React from "react";
 import {Card, Form, Progress, Tag} from "antd";
 import Meta from "antd/es/card/Meta";
 import FormItem from "antd/es/form/FormItem";
-import Link from "next/link";
+import DateTimeFormatter from "@/app/utils";
+import {useRouter} from "next/navigation";
 
 interface TaskItemCardProps {
     cardData: any,
@@ -12,9 +13,11 @@ interface TaskItemCardProps {
 }
 
 const TaskItemCard: React.FC<TaskItemCardProps> = ({
-                                               cardData,
-                                               isManager = false
-                                           }) => {
+                                                       cardData,
+                                                       isManager = false
+                                                   }) => {
+
+    const router = useRouter();
 
     return (
         <div>
@@ -33,7 +36,7 @@ const TaskItemCard: React.FC<TaskItemCardProps> = ({
                                       <Tag color="#f50">已结束</Tag>)}
                               </FormItem>
                               <FormItem label={'起止时间'}>
-                                  <div>{cardData.startTime.substring(0, 10)} - {cardData.endTime.substring(0, 10)}</div>
+                                  <div>{DateTimeFormatter.formatDate(cardData.startTime)} 至 {DateTimeFormatter.formatDate(cardData.endTime)}</div>
                               </FormItem>
 
                               {isManager ? (
@@ -58,20 +61,26 @@ const TaskItemCard: React.FC<TaskItemCardProps> = ({
                                       </FormItem>
                                       <FormItem label={'提交状态'}>
                                           <div>{cardData.submissionStatus == 0 ? (
-                                              <Tag bordered={false} color="success">已提交</Tag>) : (
                                               <Tag bordered={false}
-                                                   color="processing">未提交</Tag>)}</div>
-                                      </FormItem>
-                                      <FormItem label={'提交的笔记'}>
-                                          <div>{cardData.submissionStatus == 0 ? (
-                                              <Link
-                                                  href={'/components/MarkDownEdit/' + cardData.submissionNoteId}
-                                                  onClick={(e) => {
-                                                      e.stopPropagation();
-                                                  }}>查看</Link>) : (
+                                                   color="processing">未提交</Tag>) : cardData.submissionStatus == 1 ? (
                                               <Tag bordered={false}
-                                                   color="processing">暂无笔记</Tag>)}</div>
+                                                   color="success">已提交</Tag>) : cardData.submissionStatus == 2 ?
+                                              <Tag bordered={false} color="success">无需提交</Tag> :
+                                              <Tag bordered={false}
+                                                   color="error">被退回</Tag>}</div>
                                       </FormItem>
+                                      {/*<FormItem label={'提交的笔记'}>*/}
+                                      {/*    <div>{cardData.submissionStatus == 1 ? (*/}
+                                      {/*        // <Link*/}
+                                      {/*        //     href={'/components/MarkDownEdit/' + cardData.submissionNoteId}*/}
+                                      {/*        <Tag*/}
+                                      {/*            onClick={(e) => {*/}
+                                      {/*                e.stopPropagation();*/}
+                                      {/*                router.push('/components/MarkDownEdit/' + cardData.submissionNoteId)*/}
+                                      {/*            }}>查看</Tag>) : (*/}
+                                      {/*        <Tag bordered={false}*/}
+                                      {/*             color="processing">暂无笔记</Tag>)}</div>*/}
+                                      {/*</FormItem>*/}
                                   </>)}
                           </Form>}
                 />

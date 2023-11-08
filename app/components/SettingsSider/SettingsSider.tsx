@@ -58,13 +58,13 @@ const SettingsSider = () => {
     return (
         <>
             <Sider width={255} theme={"light"}
-                   style={{background: 'rgba(239, 239, 239, 0.8)', padding: 15, boxSizing: "border-box"}}>
+                   style={{background: 'rgb(250,250,250)', padding: 15, boxSizing: "border-box"}}>
                 <div>
                     <Button type={"text"} icon={<LeftOutlined/>} onClick={back}>
                         返回
                     </Button>
 
-                    <Card bodyStyle={{background: 'rgba(239, 239, 239, 0.8)'}}>
+                    <Card bodyStyle={{background: 'rgb(250,250,250)'}}>
                         <Space>
                             <Avatar src={'/icons/icon.jpg'} size={50}/>
                             <span>{userData?.nickname}</span>

@@ -25,6 +25,8 @@ import {useRouter} from "next/navigation";
 import FunctionButton from "@/app/components/FunctionButton";
 import BlankLine from "@/app/components/BlankLine";
 import TaskItemCard from "@/app/components/TaskCard";
+import DateTimeFormatter from "@/app/utils";
+import dayjs from "dayjs";
 
 const {TextArea} = Input;
 const {RangePicker} = DatePicker;
@@ -170,7 +172,12 @@ const TaskCard: React.FC<TaskCardProps> = ({
                         </FormItem>
 
                         <FormItem name={'startTme'} label={'起止时间'}>
-                            <RangePicker name={'startTme'} onChange={changeEvent}/>
+                            <RangePicker name={'startTme'} onChange={changeEvent}
+                                         showTime={{
+                                             hideDisabledOptions: true,
+                                             defaultValue: [dayjs('00:00:00', 'HH:mm:ss'), dayjs('11:59:59', 'HH:mm:ss')],
+                                         }}
+                                         format="YYYY-MM-DD HH:mm:ss"/>
                         </FormItem>
                     </Form>
                 </Modal>
@@ -261,30 +268,34 @@ function ContentCard(props: any) {
                 console.log(info.file, info.fileList);
             }
             if (info.file.status === 'done') {
-                setUploadStatus({
-                    status: false,
-                    url: info.file.response.data.excelUrl
-                })
+                if (info.file.response.code == '00000') {
+                    setUploadStatus({
+                        status: false,
+                        url: info.file.response.data.excelUrl
+                    })
 
-                setLoadingList({
-                    ...loadingList,
-                    members: true
-                })
-
-                const usersListForm = {
-                    knowledgeBaseId: props.bookId,
-                    pageSize: 1000,
-                    page: 1
-                }
-
-                getBookUsersList(usersListForm).then(res => {
-                    setMembersList(res.data.data.rows);
                     setLoadingList({
                         ...loadingList,
-                        members: false
+                        members: true
                     })
-                    message.success(`${info.file.name} 导入成功！`)
-                })
+
+                    const usersListForm = {
+                        knowledgeBaseId: props.bookId,
+                        pageSize: 1000,
+                        page: 1
+                    }
+
+                    getBookUsersList(usersListForm).then(res => {
+                        setMembersList(res.data.data.rows);
+                        setLoadingList({
+                            ...loadingList,
+                            members: false
+                        })
+                        message.success(`${info.file.name} 导入成功！`)
+                    })
+                } else {
+                    message.error(info.file.response.msg)
+                }
             } else if (info.file.status === 'error') {
                 message.error(`${info.file.name} 导入失败！`);
             }
@@ -406,8 +417,8 @@ function ContentCard(props: any) {
         } else {
             setTaskForm((prevState) => ({
                 ...prevState,
-                ['startTime']: timeString[0],
-                ['endTime']: timeString[1]
+                ['startTime']: DateTimeFormatter.formatDateStringToISO(timeString[0]),
+                ['endTime']: DateTimeFormatter.formatDateStringToISO(timeString[1])
             }))
         }
     }

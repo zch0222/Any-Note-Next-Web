@@ -1,17 +1,15 @@
 "use client"
 import {addNote, getBookById, getBookTaskList, getNotesById} from "@/app/api/note";
-import React, {useEffect, useState} from "react";
-import {Card, Form, List, message, Radio, RadioChangeEvent, Space, Tag} from "antd";
+import React, {useEffect, useMemo, useState} from "react";
+import {List, message, Radio, RadioChangeEvent, Space, Tag, Tooltip} from "antd";
 import {EditOutlined, FileOutlined, SettingOutlined} from "@ant-design/icons";
 import {Book, Note} from "@/app/config/types";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
-import Meta from "antd/es/card/Meta";
-import FormItem from "antd/es/form/FormItem";
 import Loading from "@/app/components/Loading";
 import FunctionButton from "@/app/components/FunctionButton";
 import BlankLine from "@/app/components/BlankLine";
-import {formatDate} from "@/app/utils";
+import DateTimeFormatter, {encryptAndEncodeObject} from "@/app/utils";
 import TaskItemCard from "@/app/components/TaskCard";
 
 
@@ -40,7 +38,7 @@ const NoteList: React.FC<NoteListProps> = ({
                             }
                             title={item.notePermissions == 0 ? <div>{item.title}</div> :
                                 <Link href={'/components/MarkDownEdit/' + item.id}>{item.title}</Link>}
-                            description={formatDate(item.updateTime)}
+                            description={DateTimeFormatter.formatDate(item.updateTime)}
                         />
                         <div> {item.notePermissions == 7 ?
                             <Tag color="success">管理</Tag> : item.notePermissions == 6 ?
@@ -60,6 +58,21 @@ const TaskList: React.FC<TaskListProps> = ({
                                            }) => {
 
     const router = useRouter();
+    const [arrow, setArrow] = useState('Show');
+
+    const mergedArrow = useMemo(() => {
+        if (arrow === 'Hide') {
+            return false;
+        }
+
+        if (arrow === 'Show') {
+            return true;
+        }
+
+        return {
+            pointAtCenter: true,
+        };
+    }, [arrow]);
 
     return (
         <div>
@@ -73,13 +86,22 @@ const TaskList: React.FC<TaskListProps> = ({
                 }}
                 dataSource={taskData}
                 renderItem={(item: any) => (
-                    <List.Item style={{minWidth: 200}}
-                               onClick={() => {
-                                   if (permissions == '1')
-                                       router.push('/dashboard/taskDetail/' + item.id)
-                               }}>
-                        <TaskItemCard cardData={item}/>
-                    </List.Item>
+                    <Tooltip placement="right" title={'查看详情'} arrow={mergedArrow}>
+                        <List.Item style={{minWidth: 200}}
+                                   onClick={() => {
+                                       if (permissions == '1')
+                                           router.push('/dashboard/taskDetail/' + item.id)
+                                   }}>
+
+                            {permissions == '1' ? <Link href={{
+                                    pathname: '/dashboard/taskDetail/' + item.id
+                                }}> <TaskItemCard cardData={item}/></Link> :
+                                <Link href={{
+                                    pathname: '/submitDetail/' + item.id,
+                                    query: {query: encryptAndEncodeObject({isManager: false})}
+                                }} target={"_blank"}> <TaskItemCard cardData={item}/></Link>}
+                        </List.Item>
+                    </Tooltip>
                 )}/>
         </div>
     )

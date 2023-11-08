@@ -14,7 +14,7 @@ export default function LoginLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en">
+        <html lang="ch">
         <head>
             <link rel="icon"
                   href="/icons/LOGO.png"

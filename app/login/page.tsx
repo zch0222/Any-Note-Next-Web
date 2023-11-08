@@ -52,7 +52,7 @@ export default function Page() {
     }
 
     const onFinish = (values: any) => {
-        console.log('Success:', values);
+        console.log('Success');
     };
 
     const onFinishFailed = (errorInfo: any) => {

@@ -2,20 +2,23 @@
 
 
 import {useEffect, useState} from "react";
-import {getSubmitTaskListApi, getTaskDetailApi, updateNoteTaskApi} from "@/app/api/note";
+import {getSubmitTaskListApi, getTaskDetailApi, sendBackNoteApi, updateNoteTaskApi} from "@/app/api/note";
 import Loading from "@/app/components/Loading";
 import {Button, DatePicker, Descriptions, Form, Input, List, message, Modal, Progress, Space, Tag} from "antd";
-import Link from "next/link";
 import FormItem from "antd/es/form/FormItem";
 import FunctionButton from "@/app/components/FunctionButton";
 import {SettingOutlined} from "@ant-design/icons";
 import BlankLine from "@/app/components/BlankLine";
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import DateTimeFormatter from "@/app/utils";
+import {useRouter} from "next/navigation";
 
-
+dayjs.extend(customParseFormat);
 const {RangePicker} = DatePicker;
 
 export default function Page({params}: { params: { id: string } }) {
-
+    const router = useRouter();
 
     const [taskDetail, setTaskDetail] = useState<any>([])
     const [submitList, setSubmitList] = useState([]);
@@ -41,10 +44,12 @@ export default function Page({params}: { params: { id: string } }) {
     }
 
     const getSubmitTaskList = () => {
+        setLoading(false)
+
         const param = {
             noteTaskId: params.id,
             page: 1,
-            pageSize: 10
+            pageSize: 100
         }
 
         getSubmitTaskListApi(param).then(res => {
@@ -71,6 +76,13 @@ export default function Page({params}: { params: { id: string } }) {
                     endTime: taskForm.endTime,
                 })
                 setIsModalOpen(false);
+            } else {
+                setTaskForm({
+                    taskName: '',
+                    startTime: '',
+                    endTime: '',
+                    id: params.id
+                })
             }
         })
         setTaskForm({
@@ -101,10 +113,20 @@ export default function Page({params}: { params: { id: string } }) {
         } else {
             setTaskForm((prevState) => ({
                 ...prevState,
-                ['startTime']: timeString[0],
-                ['endTime']: timeString[1]
+                ['startTime']: DateTimeFormatter.formatDateStringToISO(timeString[0]),
+                ['endTime']: DateTimeFormatter.formatDateStringToISO(timeString[1])
             }))
         }
+    }
+
+    const sendBack = (id: any) => {
+        sendBackNoteApi({id: id}).then(res => {
+            console.log(res)
+            if (res.data.code == '00000') {
+                message.success('成功退回！');
+                getSubmitTaskList();
+            }
+        })
     }
 
     return (
@@ -121,14 +143,19 @@ export default function Page({params}: { params: { id: string } }) {
                                             icon={<SettingOutlined style={{fontSize: 20}}/>}/>
                         </Space>
                         <BlankLine/>
-                        <Modal title="修改任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                        <Modal title="修改任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
+                               destroyOnClose={true}>
                             <Form>
                                 <FormItem name={'taskName'} label={'任务名称'}>
                                     <Input name={'taskName'} value={taskForm.taskName} onChange={onTaskChange}/>
                                 </FormItem>
 
                                 <FormItem name={'startTme'} label={'起止时间'}>
-                                    <RangePicker name={'startTme'} onChange={onTaskChange}/>
+                                    <RangePicker name={'startTme'} onChange={onTaskChange} showTime={{
+                                        hideDisabledOptions: true,
+                                        defaultValue: [dayjs('00:00:00', 'HH:mm:ss'), dayjs('11:59:59', 'HH:mm:ss')],
+                                    }}
+                                                 format="YYYY-MM-DD HH:mm:ss"/>
                                 </FormItem>
                             </Form>
                         </Modal>
@@ -142,7 +169,7 @@ export default function Page({params}: { params: { id: string } }) {
                                     <Tag color="#f50">已结束</Tag>)}
                             </Descriptions.Item>
                             <Descriptions.Item label={'起止时间'}>
-                                <div>{taskDetail.startTime.substring(0, 10)} - {taskDetail.endTime.substring(0, 10)}</div>
+                                <div>{DateTimeFormatter.formatDate(taskDetail.startTime)} 至 {DateTimeFormatter.formatDate(taskDetail.endTime)}</div>
                             </Descriptions.Item>
                             <Descriptions.Item label={'总人数'}>
                                 <div>{taskDetail.needSubmitCount}</div>
@@ -162,13 +189,21 @@ export default function Page({params}: { params: { id: string } }) {
                         <List
                             pagination={{position: 'bottom', align: 'center'}}
                             dataSource={submitList}
-                            renderItem={(item: any, index) => (
+                            renderItem={(item: any) => (
                                 <List.Item>
                                     <List.Item.Meta
                                         title={item.submissionNickname}
-                                        description={'提交时间: ' + item.createTime}
+                                        description={'提交时间: ' + DateTimeFormatter.formatDate(item.createTime)}
                                     />
-                                    <Link href={'/components/MarkDownEdit/' + item.noteId}>查看笔记</Link>
+                                    <Button type={"text"} danger onClick={() => sendBack(item.id)}>退回</Button>
+                                    <Button type={"primary"} onClick={() => {
+                                        router.push('/components/MarkDownEdit/' + item.noteId)
+                                    }}>查看详情
+                                        {/*<Link href={{*/}
+                                        {/*    pathname: '/submitDetail/' + item.userId,*/}
+                                        {/*    query: {query: encryptAndEncodeObject(item)}*/}
+                                        {/*}} target={"_blank"}>查看详情</Link>*/}
+                                    </Button>
                                 </List.Item>
                             )}
                         />

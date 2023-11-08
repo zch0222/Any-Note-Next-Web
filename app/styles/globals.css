@@ -38,6 +38,14 @@ body {
     justify-content: center;
 }
 
+.flex_column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
 .app_container .title {
     color: rgba(16, 16, 16, 1);
     font-size: 28px;

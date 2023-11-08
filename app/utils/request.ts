@@ -1,6 +1,5 @@
 import axios from 'axios'
 import {ls} from '@/app/utils/storage'
-import {useRouter} from "next/navigation";
 import {message, Modal} from "antd";
 
 let isReloginShow = false;
@@ -38,7 +37,21 @@ service.interceptors.request.use(config => {
 
     return config
 }, error => {
-    console.log(error)
+    console.log('请求', error.message)
+
+    if (error.response.status == 404) {
+        Modal.error({
+            title: '提示',
+            content: '请求出错',
+            okText: '重新登录',
+            onOk: () => {
+                window.location.href = 'https://www.anynote.tech/login';
+            }
+        });
+    } else {
+        return error.response
+    }
+
 })
 
 // @ts-ignore
@@ -52,17 +65,23 @@ service.interceptors.response.use(res => {
             return res
         }
     }, error => {
+        console.log('响应', error.message)
+
+        if (error.code == 'ERR_NETWORK') {
+            message.error("网络错误，请检查网络！")
+        }
+
         if (error.response.status == 401) {
             Modal.error({
                 title: '提示',
                 content: '登录状态过期或未登录',
                 okText: '重新登录',
                 onOk: () => {
-                    window.location.href='https://www.anynote.tech/login';
+                    window.location.href = 'https://www.anynote.tech/login';
                 }
             });
         } else {
-            return error.response
+            message.error(error.response.status);
         }
     }
 )

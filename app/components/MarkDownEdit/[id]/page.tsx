@@ -14,12 +14,13 @@ import {
 import backIcon from "../../../../public/icons/img.png"
 import {Content, Header} from "antd/es/layout/layout";
 import Image from "next/image";
-import {Button, Drawer, Layout, List, message, Modal, Popover, Space, Tag} from "antd";
+import {Button, Card, Drawer, Layout, List, message, Modal, Popover, Row, Space, Tag} from "antd";
 import {useRouter} from "next/navigation";
-import {PicLeftOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PicLeftOutlined, SolutionOutlined} from "@ant-design/icons";
 import '@/app/styles/globals.css'
 import Loading from "@/app/components/Loading";
 import {vditorCdn} from "@/app/config";
+import DateTimeFormatter from "@/app/utils";
 
 
 export default function MarkDownEdit({params}: { params: { id: string } }) {
@@ -72,13 +73,10 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
     }
 
     const upLoadImage = (file: any, vdt: any): any => {
-        console.log(file)
-        console.log(file[0])
         let formatData = new FormData();
         formatData.append('image', file[0]);
         formatData.append('noteId', params.id);
         upLoadImageById(formatData).then(res => {
-            console.log(res.data.data.image)
             vdt.insertValue(res.data.data.image);
         }).catch(error => {
             return error
@@ -260,10 +258,14 @@ function EditHeader(props: any) {
         })
     }
 
-    const back = () => {
-        props.saveEdit().then(() => {
+    const back = (notePermission: any) => {
+        if (parseInt(notePermission) > 4) {
+            props.saveEdit().then(() => {
+                router.back();
+            })
+        } else {
             router.back();
-        })
+        }
     }
 
     const handleOpenChange = (newOpen: boolean) => {
@@ -291,7 +293,7 @@ function EditHeader(props: any) {
                 const updatedBookTask: any = bookTask.map((item: any) => {
                     if (item.id == taskId) {
                         // 如果 id 为 2，则将 sub 设置为 1
-                        return {...item, submissionStatus: 0};
+                        return {...item, submissionStatus: 1};
                     }
                     // 否则保持不变
                     return item;
@@ -320,13 +322,17 @@ function EditHeader(props: any) {
     }, [props.noteData.knowledgeBaseId])
 
     const functionContent = (
-        <div style={{width: 300}}>
-            <div>
-                <Button onClick={showDrawer}>提交</Button>
-            </div>
-            <div>
-                <Button onClick={showModal} danger>删除</Button>
-            </div>
+        <div style={{width: 250}}>
+            <Card bodyStyle={{padding: 10}}>
+                <Row>
+                    <Button style={{width: '100%', textAlign: "start"}} type={"text"} onClick={showDrawer}
+                            icon={<SolutionOutlined/>}>提交</Button>
+                </Row>
+                <Row>
+                    <Button style={{width: '100%', textAlign: "start"}} type={"text"} onClick={showModal} danger
+                            icon={<DeleteOutlined color={'red'}/>}>删除</Button>
+                </Row>
+            </Card>
         </div>
     );
 
@@ -344,7 +350,7 @@ function EditHeader(props: any) {
                                 description={<div>发布人：{item.taskCreatorNickname}</div>}
                             />
 
-                            <div>{item.submissionStatus == 0 ?
+                            <div>{item.submissionStatus == 1 ?
                                 <Tag bordered={false}
                                      color="success">已提交</Tag> : new Date(item.endTime) > new Date() ?
                                     <Button onClick={() => submit(item.id)}>提交</Button> :
@@ -355,14 +361,14 @@ function EditHeader(props: any) {
                 />
             </Drawer>
 
-            <div className={'leftItem hover'} onClick={back}>
+            <div className={'leftItem hover'} onClick={() => back(props.noteData.notePermissions)}>
                 <Image src={backIcon} alt={''} width={30} height={30}/>
                 <div>
                     <div style={{lineHeight: 'normal'}}>
                         {props.saveLoading ? <>自动保存中...</> : '已是最新版本'}
                     </div>
                     <div style={{lineHeight: 'normal', fontSize: '10px'}}>
-                        最近更新时间: {props.noteData.updateTime}
+                        最近更新时间: {DateTimeFormatter.formatDate(props.noteData.updateTime)}
                     </div>
                 </div>
             </div>

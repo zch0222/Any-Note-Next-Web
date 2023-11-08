@@ -98,6 +98,14 @@ export function deleteNote(params: any) {
     })
 }
 
+// 删除笔记
+export function sendBackNoteApi(params: any) {
+    return request({
+        url: '/api/note/admin/noteTasks/submissions/return/' + params.id,
+        method: 'post'
+    })
+}
+
 // 提交知识库任务
 export function submitNoteTask(data: any) {
     return request({
@@ -116,12 +124,20 @@ export function addNoteTask(data: any) {
     })
 }
 
-// 创建知识库任务
+// 更新知识库任务
 export function updateNoteTaskApi(params: any, data: any) {
     return request({
         url: '/api/note/admin/noteTasks/' + params.id,
         method: 'patch',
         data
+    })
+}
+
+// 获取知识库任务历史
+export function getNoteTaskHistoryApi(params: any) {
+    return request({
+        url: '/api/note/noteTasks/' + params.id + '/history',
+        method: 'get'
     })
 }
 
