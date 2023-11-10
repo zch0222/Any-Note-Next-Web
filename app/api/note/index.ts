@@ -1,4 +1,6 @@
 import request from "@/app/utils/request";
+import {ResData} from "@/app/config/types/requestTypes";
+import {NoteOperationCount} from "@/app/config/types";
 
 export function getBooks(params: any) {
     return request({
@@ -166,6 +168,17 @@ export function getTaskDetailApi(params: any) {
         method: 'get',
     })
 }
+
+
+export function getTaskManageNoteOperationCounts(params: {
+    noteTaskId: number
+}) {
+    return request<ResData<NoteOperationCount[]>>({
+        url: `/api/note/admin/noteTasks/${params.noteTaskId}/operationCounts`,
+        method: "get"
+    })
+}
+
 
 // 获取知识库用户列表
 export function getBookUsersList(params: any) {

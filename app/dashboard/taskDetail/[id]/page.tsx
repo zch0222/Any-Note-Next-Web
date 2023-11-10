@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import DateTimeFormatter from "@/app/utils";
 import {useRouter} from "next/navigation";
+import TaskManageNoteEditChart from "@/app/components/TaskManageNoteOperationChart";
 
 dayjs.extend(customParseFormat);
 const {RangePicker} = DatePicker;
@@ -143,6 +144,7 @@ export default function Page({params}: { params: { id: string } }) {
                                             icon={<SettingOutlined style={{fontSize: 20}}/>}/>
                         </Space>
                         <BlankLine/>
+                        <TaskManageNoteEditChart noteTaskId={parseInt(params.id)}/>
                         <Modal title="修改任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
                                destroyOnClose={true}>
                             <Form>

@@ -37,3 +37,10 @@ export interface ListData {
     status:any;
     description:any;
 }
+
+export interface NoteOperationCount {
+    userId: number;
+    nickname: string;
+    noteId: number;
+    count: number;
+}
