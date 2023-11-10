@@ -20,6 +20,8 @@ import {getBooks, getBookTaskList, getPersonalBooks, searchNotesApi} from "@/app
 import {ls} from "@/app/utils/storage"
 import "../../styles/globals.css"
 import {Book} from "@/app/config/types";
+import {getBooksData, getPersonalBooksData} from "@/hooks/note";
+import Loading from "@/app/components/Loading";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -75,8 +77,8 @@ const DashboardSider = () => {
 
 
     const onClick: MenuProps['onClick'] = (e) => {
+        console.log(e)
         e.domEvent.isPropagationStopped();
-        console.log(e.domEvent)
         setSelectKey([e.key]);
         router.push(e.key)
     };

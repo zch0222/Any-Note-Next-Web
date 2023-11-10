@@ -5,6 +5,7 @@ import {Button, Menu, Row} from "antd";
 import {useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import Image from "next/image";
+import {Auth} from "@/app/components/Auth/Auth";
 
 const items: MenuProps['items'] = [
     {

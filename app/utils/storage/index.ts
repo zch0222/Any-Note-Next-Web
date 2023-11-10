@@ -8,6 +8,7 @@ interface StorageData<T = any> {
  * @param options ：本地存储保留时间
  */
 export function createLocalStorage(options?: { expire?: number | null }) {
+
     const DEFAULT_CACHE_TIME = 60 * 60 * 24 * 7
 
     const {expire} = Object.assign({expire: DEFAULT_CACHE_TIME}, options)
@@ -23,7 +24,7 @@ export function createLocalStorage(options?: { expire?: number | null }) {
     }
 
     function get(key: string) {
-        if (typeof window) {
+        if (typeof window !== 'undefined') {
             const json = window.localStorage.getItem(key)
             if (json) {
                 let storageData: StorageData | null = null

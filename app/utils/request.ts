@@ -67,6 +67,10 @@ service.interceptors.response.use(res => {
     }, error => {
         console.log('响应', error.message)
 
+        if(error.code == 'ECONNABORTED') {
+            message.error("请求超时，请刷新页面或检查网络！")
+        }
+
         if (error.code == 'ERR_NETWORK') {
             message.error("网络错误，请检查网络！")
         }

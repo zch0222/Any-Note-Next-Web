@@ -1,35 +1,28 @@
 "use client"
-import {addNote, getBookById, getBookTaskList, getNotesById} from "@/app/api/note";
-import React, {useEffect, useMemo, useState} from "react";
+import {addNote} from "@/app/api/note";
+import React, {useMemo, useState} from "react";
 import {List, message, Radio, RadioChangeEvent, Space, Tag, Tooltip} from "antd";
 import {EditOutlined, FileOutlined, SettingOutlined} from "@ant-design/icons";
-import {Book, Note} from "@/app/config/types";
-import {useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import Link from "next/link";
 import Loading from "@/app/components/Loading";
 import FunctionButton from "@/app/components/FunctionButton";
 import BlankLine from "@/app/components/BlankLine";
 import DateTimeFormatter, {encryptAndEncodeObject} from "@/app/utils";
 import TaskItemCard from "@/app/components/TaskCard";
+import {getBookDataById, getBookTaskData, getNotesData} from "@/hooks/note";
 
+const NoteList = () => {
+    const params: any = useParams()
+    const {noteData, isNoteDataLoading, isNoteError} = getNotesData(params.id)
 
-interface NoteListProps {
-    notesData: any
-}
+    if (isNoteDataLoading) return <Loading/>
 
-interface TaskListProps {
-    taskData: any,
-    permissions: any
-}
-
-const NoteList: React.FC<NoteListProps> = ({
-                                               notesData
-                                           }) => {
     return (
         <div>
             <List
                 pagination={{position: 'bottom', align: 'end'}}
-                dataSource={notesData}
+                dataSource={noteData}
                 renderItem={(item: any, index) => (
                     <List.Item>
                         <List.Item.Meta
@@ -52,13 +45,13 @@ const NoteList: React.FC<NoteListProps> = ({
     )
 }
 
-const TaskList: React.FC<TaskListProps> = ({
-                                               taskData,
-                                               permissions
-                                           }) => {
+const TaskList = () => {
 
     const router = useRouter();
-    const [arrow, setArrow] = useState('Show');
+    const [arrow, setArrow] = useState('Show')
+    const params: any = useParams()
+    const {taskData, isTaskDataLoading, isTaskError} = getBookTaskData(params.id)
+    const {bookData, isBookDataLoading, isBookError} = getBookDataById(params.id)
 
     const mergedArrow = useMemo(() => {
         if (arrow === 'Hide') {
@@ -73,6 +66,8 @@ const TaskList: React.FC<TaskListProps> = ({
             pointAtCenter: true,
         };
     }, [arrow]);
+
+    if (isTaskDataLoading || isBookDataLoading) return <Loading/>
 
     return (
         <div>
@@ -89,11 +84,11 @@ const TaskList: React.FC<TaskListProps> = ({
                     <Tooltip placement="right" title={'查看详情'} arrow={mergedArrow}>
                         <List.Item style={{minWidth: 200}}
                                    onClick={() => {
-                                       if (permissions == '1')
+                                       if (bookData?.permissions == '1')
                                            router.push('/dashboard/taskDetail/' + item.id)
                                    }}>
 
-                            {permissions == '1' ? <Link href={{
+                            {bookData?.permissions == '1' ? <Link href={{
                                     pathname: '/dashboard/taskDetail/' + item.id
                                 }}> <TaskItemCard cardData={item}/></Link> :
                                 <Link href={{
@@ -115,35 +110,8 @@ export default function Page({params}: { params: { id: string } }) {
     const [typeValue, setTypeValue] = useState('0');
 
     const [messageApi, contextHolder] = message.useMessage();
-    const [bookData, setBookData] = useState<Book>()
-    const [notesData, setNotesData] = useState<Note[]>([])
-    const [loading, setLoading] = useState(false);
     const router = useRouter();
-
-    const [bookTask, setBookTask] = useState([]);
-    const getData = async () => {
-        const data = {
-            page: '1',
-            pageSize: '1000'
-        }
-
-        getBookById(params).then(res => {
-            setBookData(res.data.data)
-        })
-
-        getNotesById(params, data).then(res => {
-            setNotesData(res.data.data.rows)
-        })
-
-        const listParams = {
-            knowledgeBaseId: params.id,
-            page: 1,
-            pageSize: 1000
-        }
-        await getBookTaskList(listParams).then(res => {
-            setBookTask(res.data.data.rows);
-        })
-    }
+    const {bookData, isBookDataLoading, isBookError} = getBookDataById(params.id)
 
     const handleManage = (id: any) => {
 
@@ -174,51 +142,42 @@ export default function Page({params}: { params: { id: string } }) {
     };
 
     const onRadioChange = ({target: {value}}: RadioChangeEvent) => {
-        console.log('radio1 checked', value);
         setTypeValue(value);
     };
 
 
-    useEffect(() => {
-        getData().then(() => {
-            setLoading(true);
-        })
-    }, [])
+    if (isBookDataLoading) return <Loading/>
 
     // @ts-ignore
     return (
         <>
-            {loading ?
-                <>
-                    <div>
-                        <h1>{bookData?.knowledgeBaseName}</h1>
+            <div>
+                <h1>{bookData?.knowledgeBaseName}</h1>
 
-                        <Space>
-                            {
-                                bookData?.permissions != '1' ?
-                                    <FunctionButton title={'创建新笔记'} clickEvent={addNewNote} content={'文档'}
-                                                    icon={<EditOutlined style={{fontSize: 20}}/>}/>
-                                    :
-                                    <>
-                                        <FunctionButton title={'管理知识库'} clickEvent={() => handleManage(params.id)}
-                                                        content={'信息、成员、任务'}
-                                                        icon={<SettingOutlined style={{fontSize: 20}}/>}/>
-                                        <FunctionButton title={'创建新笔记'} clickEvent={addNewNote} content={'文档'}
-                                                        icon={<EditOutlined style={{fontSize: 20}}/>}/>
-                                    </>
-                            }
-                        </Space>
-                    </div>
-
-                    <BlankLine/>
-                    <Radio.Group options={radioOptions} onChange={onRadioChange} value={typeValue} optionType="button"/>
-                    <BlankLine/>
+                <Space>
                     {
-                        typeValue == '0' ? <NoteList notesData={notesData}/> :
-                            <TaskList taskData={bookTask} permissions={bookData?.permissions}/>
+                        bookData?.permissions != '1' ?
+                            <FunctionButton title={'创建新笔记'} clickEvent={addNewNote} content={'文档'}
+                                            icon={<EditOutlined style={{fontSize: 20}}/>}/>
+                            :
+                            <>
+                                <FunctionButton title={'管理知识库'} clickEvent={() => handleManage(params.id)}
+                                                content={'信息、成员、任务'}
+                                                icon={<SettingOutlined style={{fontSize: 20}}/>}/>
+                                <FunctionButton title={'创建新笔记'} clickEvent={addNewNote} content={'文档'}
+                                                icon={<EditOutlined style={{fontSize: 20}}/>}/>
+                            </>
                     }
-                </> : <Loading/>}
+                </Space>
+            </div>
 
+            <BlankLine/>
+            <Radio.Group options={radioOptions} onChange={onRadioChange} value={typeValue} optionType="button"/>
+            <BlankLine/>
+            {
+                typeValue == '0' ? <NoteList/> :
+                    <TaskList/>
+            }
         </>
     )
 }

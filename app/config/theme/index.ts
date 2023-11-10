@@ -1,5 +1,6 @@
 // theme/themeConfig.ts
 import type {ThemeConfig} from 'antd';
+import {theme as bg} from "antd";
 
 export const theme: ThemeConfig = {
     token: {
