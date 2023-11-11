@@ -34,10 +34,10 @@ function getItem(
     children?: MenuItem[],
 ): MenuItem {
     return {
+        label,
         key,
         icon,
         children,
-        label,
     } as MenuItem;
 }
 

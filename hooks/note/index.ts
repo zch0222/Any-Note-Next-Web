@@ -3,12 +3,15 @@ import {
     getAdminBookTaskList,
     getBookById,
     getBooks,
-    getBookTaskList, getBookUsersList,
+    getBookTaskList,
+    getBookUsersList,
+    getNoteHistoryApi,
+    getNoteHistoryListApi,
     getNotesById,
     getPersonalBooks
 } from "@/app/api/note";
 
-
+// 获取组织知识库
 export function getBooksData() {
     const params = {
         page: '1',
@@ -24,6 +27,7 @@ export function getBooksData() {
     }
 }
 
+// 获取非组织知识库
 export function getPersonalBooksData() {
     const params = {
         page: '1',
@@ -39,6 +43,7 @@ export function getPersonalBooksData() {
     }
 }
 
+// 根据id获取知识库信息
 export function getBookDataById(id: string) {
     const {data, error, isLoading, mutate} = useSWR(`/api/note/bases/${id}`, () => getBookById({id: id}))
 
@@ -50,6 +55,7 @@ export function getBookDataById(id: string) {
     }
 }
 
+// 根据id获取笔记内容
 export function getNotesData(id: string) {
     const {data, error, isLoading} = useSWR(`/api/note/notes/bases/${id}`, () => getNotesById({id: id},
         {
@@ -64,7 +70,7 @@ export function getNotesData(id: string) {
     }
 }
 
-
+// 获取知识库任务列表
 export function getBookTaskData(id: string) {
     const listParams = {
         knowledgeBaseId: id,
@@ -81,6 +87,7 @@ export function getBookTaskData(id: string) {
     }
 }
 
+// 获取管理员知识库任务列表
 export function getAdminBookTaskData(id: string) {
     const noteTaskForm = {
         page: 1,
@@ -97,6 +104,7 @@ export function getAdminBookTaskData(id: string) {
     }
 }
 
+// 获取知识库用户列表
 export function getBookUsersData(id: string) {
     const params = {
         page: 1,
@@ -112,3 +120,36 @@ export function getBookUsersData(id: string) {
         isBookUsersError: error
     }
 }
+
+// 根据id获取笔记历史记录列表
+export function getNoteHistoryListData(id: string) {
+    const params = {
+        noteId: id,
+        page: 1,
+        pageSize: 1000
+    }
+
+    const {data, error, isLoading} = useSWR(`/api/note/notes/historyList/${id}`, () => getNoteHistoryListApi(params))
+
+    return {
+        noteHistoryListData: data?.data.data.rows,
+        isNoteHistoryListDataLoading: isLoading,
+        isNoteHistoryListDataError: error
+    }
+}
+
+// 根据operationId获取笔记历史记录
+export function getNoteHistoryData(id: string) {
+    const params = {
+        operationId: id
+    }
+
+    const {data, error, isLoading} = useSWR(`/api/note/notes/history/${id}`, () => getNoteHistoryApi(params))
+
+    return {
+        noteHistoryData: data?.data.data,
+        isNoteHistoryDataLoading: isLoading,
+        isNoteHistoryDataError: error
+    }
+}
+

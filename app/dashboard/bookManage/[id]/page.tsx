@@ -33,29 +33,6 @@ import {useSWRConfig} from "swr";
 const {TextArea} = Input;
 const {RangePicker} = DatePicker;
 
-interface InformationCardProps {
-    formData: any,
-    changeEvent: any,
-    clickEvent: any
-}
-
-interface MemberCardProps {
-    uploadProps: any,
-    loadingList: any,
-    membersList: any,
-    uploadStatus: any
-}
-
-interface TaskCardProps {
-    changeEvent: any,
-    loadingList: any,
-    noteTask: any,
-    showModal: any,
-    isModalOpen: any,
-    handleOk: any,
-    handleCancel: any,
-}
-
 const InformationCard = () => {
     const params: any = useParams()
     const {bookData, isBookDataLoading, isBookError, mutate} = getBookDataById(params.id)

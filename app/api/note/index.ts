@@ -198,6 +198,23 @@ export function getAdminBookTaskList(params: any) {
     })
 }
 
+// 获取笔记历史记录列表
+export function getNoteHistoryListApi(params: any) {
+    return request({
+        url: '/api/note/notes/historyList',
+        method: 'get',
+        params: params
+    })
+}
+
+// 获取笔记历史记录
+export function getNoteHistoryApi(params: any) {
+    return request({
+        url: '/api/note/notes/history',
+        method: 'get',
+        params
+    })
+}
 // 搜索api
 export function searchNotesApi(params: any) {
     return request({
