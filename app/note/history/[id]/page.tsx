@@ -48,7 +48,8 @@ const HistoryHeader = () => {
             borderBottom: "1px solid rgba( 31,35,41 ,0.15)",
             height: "56px"
         }}>
-            <Image src={backIcon} alt={''} width={30} height={30} onClick={() => router.back()} style={{cursor:"pointer"}}/>
+            <Image src={backIcon} alt={''} width={30} height={30} onClick={() => router.back()}
+                   style={{cursor: "pointer"}}/>
             {/*<Button type={"primary"}>恢复此记录</Button>*/}
         </Header>
     )
@@ -123,18 +124,14 @@ const HistoryContent = ({operationId}: { operationId: string }) => {
             let titles: any = [];
             ele.childNodes.forEach((e: any, index) => {
                 if (e.nodeName === 'H1' || e.nodeName === 'H2' || e.nodeName === 'H3' || e.nodeName === 'H4' || e.nodeName === 'H5' || e.nodeName === 'H6') {
-                    let a = document.createElement('a');
-                    a.setAttribute('id', '#' + index);
-                    a.setAttribute('class', 'anchor-title');
-                    a.setAttribute('href', '#' + index);
-                    a.innerText = ' '
                     let title = {
                         title: e.innerText,
                         key: index,
                         href: '#' + index
                     };
                     titles.push(title);
-                    e.appendChild(a);
+                    if (e.id != '#' + index)
+                        e.setAttribute('id', '#' + index)
                 }
             })
             return titles;
@@ -144,9 +141,7 @@ const HistoryContent = ({operationId}: { operationId: string }) => {
     const handleClickFun = (e: any, link: any) => {
         e.preventDefault();
         if (link.href) {
-            // 找到锚点对应得的节点
             let element = document.getElementById(link.href);
-            // 如果对应id的锚点存在，就跳滚动到锚点顶部
             element && element.scrollIntoView({block: 'start', behavior: 'smooth'});
         }
     }
@@ -158,7 +153,7 @@ const HistoryContent = ({operationId}: { operationId: string }) => {
     }, [noteHistoryData])
 
     useEffect(() => {
-        if (document.getElementsByClassName('markdown-body')[0] && document.getElementsByClassName('ant-anchor')[0].childNodes.length < 2) {
+        if (document.getElementsByClassName('markdown-body')[0]) {
             setTitles(addAnchor)
         }
     }, [content])
