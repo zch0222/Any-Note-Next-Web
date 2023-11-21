@@ -16,12 +16,10 @@ import {useEffect, useState} from 'react'
 import './DashboardSider.scss'
 import Image from "next/image";
 import {usePathname, useRouter} from "next/navigation";
-import {getBooks, getBookTaskList, getPersonalBooks, searchNotesApi} from "@/app/api/note";
+import {getBookTaskList, getPersonalBooks, searchNotesApi} from "@/app/api/note";
 import {ls} from "@/app/utils/storage"
 import "../../styles/globals.css"
 import {Book} from "@/app/config/types";
-import {getBooksData, getPersonalBooksData} from "@/hooks/note";
-import Loading from "@/app/components/Loading";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -49,6 +47,8 @@ const DashboardSider = () => {
     const [selectKey, setSelectKey] = useState([pathName]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userData, setUserData] = useState<any>()
+
+    // const {personalBooksData, isPersonalBooksDataLoading, isPersonalBooksError} = getPersonalBooksData()
 
     const items: MenuItem[] = [
         getItem('开始', '/dashboard', <ClockCircleOutlined/>),
@@ -97,86 +97,87 @@ const DashboardSider = () => {
         };
 
         try {
-            const booksResponse = await getBooks(params);
+            // const booksResponse = await getBooks(params);
 
-            if (booksResponse.data.code === '00000') {
-                const bookPromises = booksResponse.data.data.rows.map(async (item: Book) => {
-                    const taskList: any = [];
-                    const taskParams = {
-                        knowledgeBaseId: item.id,
-                        page: 1,
-                        pageSize: 100
-                    };
+            // if (booksResponse.data.code === '00000') {
+            // const bookPromises = booksResponse.data.data.rows.map(async (item: Book) => {
+            //     const taskList: any = [];
+            //     const taskParams = {
+            //         knowledgeBaseId: item.id,
+            //         page: 1,
+            //         pageSize: 100
+            //     };
+            //
+            //     const bookTaskResponse = await getBookTaskList(taskParams);
+            //
+            //     if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
+            //         bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
+            //             taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
+            //         });
+            //
+            //         childBooks.push(
+            //             getItem(
+            //                 <div onClick={(e) => {
+            //                     const key = '/dashboard/bookDetail/' + item.id;
+            //                     e.stopPropagation();
+            //                     setSelectKey([key]);
+            //                     router.push(key);
+            //                 }}>
+            //                     {item.knowledgeBaseName}
+            //                 </div>,
+            //                 '/dashboard/bookDetail/' + item.id,
+            //                 <FolderOutlined/>,
+            //                 taskList
+            //             )
+            //         );
+            //     } else {
+            //         childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
+            //             <FolderOutlined/>));
+            //     }
+            // });
 
-                    const bookTaskResponse = await getBookTaskList(taskParams);
+            const personalBooksResponse = await getPersonalBooks(params);
+            const personalBookPromises = personalBooksResponse.data.data.rows.map(async (item: Book) => {
+                const taskList: any = [];
+                const taskParams = {
+                    knowledgeBaseId: item.id,
+                    page: 1,
+                    pageSize: 100
+                };
 
-                    if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
-                        bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
-                            taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
-                        });
+                const bookTaskResponse = await getBookTaskList(taskParams);
 
-                        childBooks.push(
-                            getItem(
-                                <div onClick={(e) => {
-                                    const key = '/dashboard/bookDetail/' + item.id;
-                                    e.stopPropagation();
-                                    setSelectKey([key]);
-                                    router.push(key);
-                                }}>
-                                    {item.knowledgeBaseName}
-                                </div>,
-                                '/dashboard/bookDetail/' + item.id,
-                                <FolderOutlined/>,
-                                taskList
-                            )
-                        );
-                    } else {
-                        childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
-                            <FolderOutlined/>));
-                    }
-                });
+                if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
+                    bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
+                        taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
+                    });
 
-                const personalBooksResponse = await getPersonalBooks(params);
-                const personalBookPromises = personalBooksResponse.data.data.rows.map(async (item: Book) => {
-                    const taskList: any = [];
-                    const taskParams = {
-                        knowledgeBaseId: item.id,
-                        page: 1,
-                        pageSize: 100
-                    };
+                    childBooks.push(
+                        getItem(
+                            <div onClick={(e) => {
+                                const key = '/dashboard/bookDetail/' + item.id;
+                                e.stopPropagation();
+                                setSelectKey([key]);
+                                router.push(key);
+                            }}>
+                                {item.knowledgeBaseName}
+                            </div>,
+                            '/dashboard/bookDetail/' + item.id,
+                            <FolderOutlined/>,
+                            taskList
+                        )
+                    );
+                } else {
+                    childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
+                        <FolderOutlined/>));
+                }
+            });
 
-                    const bookTaskResponse = await getBookTaskList(taskParams);
+            // await Promise.all([...bookPromises, ...personalBookPromises]);
+            await Promise.all([...personalBookPromises]);
 
-                    if (bookTaskResponse.data.data.rows.length > 0 && item.permissions == '1') {
-                        bookTaskResponse.data.data.rows.forEach((taskItem: any) => {
-                            taskList.push(getItem(taskItem.taskName, '/dashboard/taskDetail/' + taskItem.id));
-                        });
-
-                        childBooks.push(
-                            getItem(
-                                <div onClick={(e) => {
-                                    const key = '/dashboard/bookDetail/' + item.id;
-                                    e.stopPropagation();
-                                    setSelectKey([key]);
-                                    router.push(key);
-                                }}>
-                                    {item.knowledgeBaseName}
-                                </div>,
-                                '/dashboard/bookDetail/' + item.id,
-                                <FolderOutlined/>,
-                                taskList
-                            )
-                        );
-                    } else {
-                        childBooks.push(getItem(item.knowledgeBaseName, '/dashboard/bookDetail/' + item.id,
-                            <FolderOutlined/>));
-                    }
-                });
-
-                await Promise.all([...bookPromises, ...personalBookPromises]);
-
-                setBookData(childBooks);
-            }
+            setBookData(childBooks);
+            // }
         } catch (error) {
             // Handle errors here
         }

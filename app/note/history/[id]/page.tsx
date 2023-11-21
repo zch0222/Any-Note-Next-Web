@@ -3,7 +3,7 @@
 import {Content, Header} from "antd/es/layout/layout";
 import backIcon from "@/public/icons/img.png";
 import Image from "next/image";
-import {Anchor, Card, Layout, List, MenuProps} from "antd";
+import {Anchor, Card, Layout, List, MenuProps, message} from "antd";
 import React, {useEffect, useState} from "react";
 import {InboxOutlined} from "@ant-design/icons";
 // @ts-ignore
@@ -172,7 +172,7 @@ const HistoryContent = ({operationId}: { operationId: string }) => {
                 display: "flex",
                 justifyContent: "space-around"
             }}>
-                <Card style={{margin: '10px auto 0', width: 800}}>
+                <Card style={{margin: '10px auto 0', width: 800, height: "fit-content"}}>
                     <ReactMarkdown
                         className={'markdown-body'}
                         children={content?.content}
@@ -212,6 +212,7 @@ const HistoryContent = ({operationId}: { operationId: string }) => {
 
 export default function Page() {
     const params: any = useParams()
+    const router = useRouter();
     const {
         noteHistoryListData,
         isNoteHistoryListDataLoading,
@@ -222,7 +223,13 @@ export default function Page() {
 
     useEffect(() => {
         if (noteHistoryListData) {
-            setOperationId(noteHistoryListData[0].operationLogId)
+            if(noteHistoryListData.length > 0){
+                setOperationId(noteHistoryListData[0].operationLogId)
+            } else {
+                message.error('暂无历史记录！').then(res =>{
+                    router.back()
+                })
+            }
         }
     }, [noteHistoryListData])
 
