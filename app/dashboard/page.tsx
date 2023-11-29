@@ -16,6 +16,7 @@ import {getAnnouncementsApi, redAnnouncementsApi} from "@/app/api/system";
 import FunctionButton from "@/app/components/FunctionButton";
 import TextArea from "antd/es/input/TextArea";
 import {ls} from "@/app/utils/storage";
+import withThemeConfigProvider from "@/app/components/hoc/withThemeConfigProvider";
 
 const columns: ColumnsType<Note> = [
     {
@@ -49,7 +50,7 @@ const columns: ColumnsType<Note> = [
 ];
 
 
-export default function Page() {
+function Page() {
 
     const router = useRouter();
     const [notesData, setNotesData] = useState<Note[]>([])
@@ -376,4 +377,6 @@ function SelectGroup() {
         </div>
     )
 }
+
+export default withThemeConfigProvider(Page)
 

@@ -1,7 +1,9 @@
 import type {Metadata} from 'next'
 import {ConfigProvider} from "antd";
 import {theme} from "@/app/config/theme";
-import AntdRegistry from "@/app/lib/AntdRegistry";
+// import AntdRegistry from "@/app/lib/AntdRegistry";
+import {Providers} from "./providers";
+import FloatButton from "@/app/components/FloatButton";
 
 export const metadata: Metadata = {
     title: '学习随记',
@@ -22,11 +24,10 @@ export default function LoginLayout({
                   sizes="any"/>
         </head>
         <body>
-        <AntdRegistry>
-            <ConfigProvider theme={theme}>
+            <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
                 {children}
-            </ConfigProvider>
-        </AntdRegistry>
+                {/*<FloatButton/>*/}
+            </Providers>
         </body>
         </html>
     )
