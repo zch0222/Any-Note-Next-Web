@@ -9,6 +9,7 @@ import {addBook, getBooks, getPersonalBooks} from "@/app/api/note";
 import {Book} from "@/app/config/types";
 import {useRouter} from "next/navigation";
 import Loading from "@/app/components/Loading";
+import {getPersonalBooksData} from "@/hooks/note";
 
 const {TextArea} = Input;
 
@@ -103,73 +104,74 @@ function BookList() {
 
     const [bookData, setBookData] = useState<Book[]>([]);
     const [personalBookData, setPersonalBookData] = useState<Book[]>([])
+    const {personalBooksData, isPersonalBooksDataLoading, isPersonalBooksError} = getPersonalBooksData()
     const router = useRouter();
 
-    const getAllBooks = async () => {
-        const params = {
-            page: '1',
-            pageSize: '10'
-        }
-        getBooks(params).then(res => {
-            setBookData(res.data.data.rows);
-        })
-
-        await getPersonalBooks(params).then(res => {
-            setPersonalBookData(res.data.data.rows);
-            setLoading(true)
-        })
-    }
+    // const getAllBooks = async () => {
+    //     const params = {
+    //         page: '1',
+    //         pageSize: '10'
+    //     }
+    //     getBooks(params).then(res => {
+    //         setBookData(res.data.data.rows);
+    //     })
+    //
+    //     await getPersonalBooks(params).then(res => {
+    //         setPersonalBookData(res.data.data.rows);
+    //         setLoading(true)
+    //     })
+    // }
 
     const handleDetail = (id: string) => {
         router.push('/dashboard/bookDetail/' + id)
     }
 
-    useEffect(() => {
-        getAllBooks()
-    }, [])
+    // useEffect(() => {
+    //     getAllBooks()
+    // }, [])
+
+    if (isPersonalBooksDataLoading) return <Loading/>
 
     return (
         <>
-            {loading ? <>
-                <h3>组织知识库</h3>
-                <List
-                    grid={{
-                        gutter: 16,
-                        xs: 1,
-                        sm: 2,
-                    }}
-                    dataSource={bookData}
-                    renderItem={(item) => (
-                        <List.Item style={{maxWidth:200,minWidth:150}}>
-                            <Card
-                                hoverable
-                                cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}
-                                onClick={() => handleDetail(item.id)}
-                            >
-                                <Meta title={item.knowledgeBaseName}/>
-                            </Card>
-                        </List.Item>
-                    )}/>
-                <h3>非组织知识库</h3>
-                <List
-                    grid={{
-                        gutter: 16,
-                        xs: 1,
-                        sm: 2,
-                    }}
-                    dataSource={personalBookData}
-                    renderItem={(item) => (
-                        <List.Item style={{maxWidth:200,minWidth:150}}>
-                            <Card
-                                hoverable
-                                cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}
-                                onClick={() => handleDetail(item.id)}
-                            >
-                                <Meta title={item.knowledgeBaseName}/>
-                            </Card>
-                        </List.Item>
-                    )}/>
-            </> : <Loading/>}
+            {/*<h3>组织知识库</h3>*/}
+            {/*<List*/}
+            {/*    grid={{*/}
+            {/*        gutter: 16,*/}
+            {/*        xs: 1,*/}
+            {/*        sm: 2,*/}
+            {/*    }}*/}
+            {/*    dataSource={bookData}*/}
+            {/*    renderItem={(item) => (*/}
+            {/*        <List.Item style={{maxWidth:200,minWidth:150}}>*/}
+            {/*            <Card*/}
+            {/*                hoverable*/}
+            {/*                cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}*/}
+            {/*                onClick={() => handleDetail(item.id)}*/}
+            {/*            >*/}
+            {/*                <Meta title={item.knowledgeBaseName}/>*/}
+            {/*            </Card>*/}
+            {/*        </List.Item>*/}
+            {/*    )}/>*/}
+            <h3>知识库</h3>
+            <List
+                grid={{
+                    gutter: 16,
+                    xs: 1,
+                    sm: 2,
+                }}
+                dataSource={personalBooksData}
+                renderItem={(item:any) => (
+                    <List.Item style={{maxWidth: 200, minWidth: 150}}>
+                        <Card
+                            hoverable
+                            cover={<img alt={item.knowledgeBaseName} src={item.cover}/>}
+                            onClick={() => handleDetail(item.id)}
+                        >
+                            <Meta title={item.knowledgeBaseName}/>
+                        </Card>
+                    </List.Item>
+                )}/>
         </>
     )
 }

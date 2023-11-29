@@ -2,6 +2,7 @@
 
 import './fotter.scss'
 import Link from "next/link";
+import {Auth} from "@/app/components/Auth/Auth";
 
 const Footer = () => {
 

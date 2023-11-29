@@ -16,7 +16,7 @@ import {Content, Header} from "antd/es/layout/layout";
 import Image from "next/image";
 import {Button, Card, Drawer, Layout, List, message, Modal, Popover, Row, Space, Tag} from "antd";
 import {useRouter} from "next/navigation";
-import {ClockCircleOutlined, DeleteOutlined, PicLeftOutlined, SolutionOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PicLeftOutlined, SolutionOutlined} from "@ant-design/icons";
 import '@/app/styles/globals.css'
 import Loading from "@/app/components/Loading";
 import {vditorCdn} from "@/app/config";
@@ -65,7 +65,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
         return {title, content};
     }
 
-    function blurEdit(value?: any) {
+    const blurEdit = (value?: any) => {
         const newContent = value || formatString(vd?.getValue());
         newContent.content = `# ${newContent.title}\n${newContent.content}`
 
@@ -109,15 +109,6 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
         })
     };
 
-    let time: any = null;
-    function debounce(fn: any, wait: any) {
-        clearTimeout(time)
-        time = setTimeout(() => {
-            // @ts-ignore
-            fn.apply(this, arguments)
-        }, wait);
-    }
-
     useEffect(() => {
         console.log()
         getData();
@@ -129,31 +120,23 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
                 height: "95vh",
                 mode: "ir", //及时渲染模式m
                 blur(value: string) {
-                    if (noteData.notePermissions > 4) {
-                        setSaveLoading(true)
-                        blurEdit(formatString(value)).then(res => {
+                    setSaveLoading(true)
+                    blurEdit(formatString(value)).then(res => {
 
-                            setSaveLoading(false)
-                        })
-                    }
+                        setSaveLoading(false)
+                    })
                 },
                 input(value: string) {
                     setSaveLoading(true)
-
-                    debounce(() => blurEdit(formatString(value)).then(res => {
+                    blurEdit(formatString(value)).then(res => {
 
                         setSaveLoading(false)
-                    }), 2000)
+                    })
                 },
                 focus(value: string) {
-                    if (noteData.notePermissions > 4) {
-                        setSaveLoading(true)
-                        blurEdit(formatString(value)).then(res => {
-
-                            setSaveLoading(false)
-                        })
-                    } else {
-                        message.error('笔记已提交，无法继续编辑!');
+                    console.log(noteData.notePermissions)
+                    if (noteData.notePermissions != 6 && noteData.notePermissions != 7) {
+                        error('笔记已提交，无法继续编辑!');
                     }
                 },
                 after() {
@@ -342,10 +325,6 @@ function EditHeader(props: any) {
         <div style={{width: 250}}>
             <Card bodyStyle={{padding: 10}}>
                 <Row>
-                    <Button style={{width: '100%', textAlign: "start"}} type={"text"} onClick={() =>{router.push('/note/history/' + props.noteId)}}
-                            icon={<ClockCircleOutlined/>}>查看历史记录</Button>
-                </Row>
-                <Row>
                     <Button style={{width: '100%', textAlign: "start"}} type={"text"} onClick={showDrawer}
                             icon={<SolutionOutlined/>}>提交</Button>
                 </Row>
@@ -383,7 +362,7 @@ function EditHeader(props: any) {
             </Drawer>
 
             <div className={'leftItem hover'} onClick={() => back(props.noteData.notePermissions)}>
-                <Image src={backIcon} alt={''} width={30} height={30}/>
+                {/*<Image src={backIcon} alt={''} width={30} height={30}/>*/}
                 <div>
                     <div style={{lineHeight: 'normal'}}>
                         {props.saveLoading ? <>自动保存中...</> : '已是最新版本'}

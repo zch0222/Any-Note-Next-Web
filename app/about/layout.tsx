@@ -3,6 +3,7 @@ import {Inter} from 'next/font/google'
 import Header from "@/app/components/AboutHeader/AboutHeader";
 import Footer from "@/app/components/AboutFooter/AboutFooter"
 import React from "react";
+import {Auth} from "@/app/components/Auth/Auth";
 
 const inter = Inter({subsets: ['latin']})
 export const metadata = {
@@ -15,26 +16,14 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        // <html lang="en">
-        // <head>
-        //     <link rel="icon"
-        //           href="/icons/LOGO.png"
-        //           type="image"
-        //           sizes="any"/>
-        // </head>
-        // <body className={inter.className}>
-        // <AntdRegistry>
-        //     <ConfigProvider theme={theme}>
-        <div style={{display:"flex",flexDirection:"column"}}>
-            <Header/>
-            <div>
-                {children}
-            </div>
-            <Footer/>
+        <div style={{display: "flex", flexDirection: "column"}}>
+            <Auth>
+                <Header/>
+                <div>
+                    {children}
+                </div>
+                <Footer/>
+            </Auth>
         </div>
-        //     </ConfigProvider>
-        // </AntdRegistry>
-        // </body>
-        // </html>
     )
 }

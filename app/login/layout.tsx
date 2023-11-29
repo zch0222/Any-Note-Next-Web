@@ -12,22 +12,8 @@ export default function LoginLayout({
     children: React.ReactNode
 }) {
     return (
-        // <html lang="en">
-        // <head>
-        //     <link rel="icon"
-        //           href="/icons/LOGO.png"
-        //           type="image"
-        //           sizes="any"/>
-        // </head>
-        // <body>
-        // <AntdRegistry>
-        //     <ConfigProvider theme={theme}>
         <section>
             {children}
         </section>
-        //     </ConfigProvider>
-        // </AntdRegistry>
-        // </body>
-        // </html>
     )
 }

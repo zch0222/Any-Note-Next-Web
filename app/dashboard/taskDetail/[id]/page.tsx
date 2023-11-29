@@ -4,7 +4,20 @@
 import {useEffect, useState} from "react";
 import {getSubmitTaskListApi, getTaskDetailApi, sendBackNoteApi, updateNoteTaskApi} from "@/app/api/note";
 import Loading from "@/app/components/Loading";
-import {Button, DatePicker, Descriptions, Form, Input, List, message, Modal, Progress, Space, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Descriptions,
+    Form,
+    Input,
+    List,
+    message,
+    Modal,
+    Popconfirm,
+    Progress,
+    Space,
+    Tag
+} from "antd";
 import FormItem from "antd/es/form/FormItem";
 import FunctionButton from "@/app/components/FunctionButton";
 import {SettingOutlined} from "@ant-design/icons";
@@ -13,6 +26,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import DateTimeFormatter from "@/app/utils";
 import {useRouter} from "next/navigation";
+import TaskManageNoteEditChart from "@/app/components/TaskManageNoteOperationChart";
 
 dayjs.extend(customParseFormat);
 const {RangePicker} = DatePicker;
@@ -121,7 +135,6 @@ export default function Page({params}: { params: { id: string } }) {
 
     const sendBack = (id: any) => {
         sendBackNoteApi({id: id}).then(res => {
-            console.log(res)
             if (res.data.code == '00000') {
                 message.success('成功退回！');
                 getSubmitTaskList();
@@ -143,6 +156,7 @@ export default function Page({params}: { params: { id: string } }) {
                                             icon={<SettingOutlined style={{fontSize: 20}}/>}/>
                         </Space>
                         <BlankLine/>
+                        <TaskManageNoteEditChart noteTaskId={parseInt(params.id)}/>
                         <Modal title="修改任务" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
                                destroyOnClose={true}>
                             <Form>
@@ -195,14 +209,18 @@ export default function Page({params}: { params: { id: string } }) {
                                         title={item.submissionNickname}
                                         description={'提交时间: ' + DateTimeFormatter.formatDate(item.createTime)}
                                     />
-                                    <Button type={"text"} danger onClick={() => sendBack(item.id)}>退回</Button>
+                                    <Popconfirm
+                                        title="退回笔记"
+                                        description="确定要退回该笔记?"
+                                        okText="确定"
+                                        cancelText="取消"
+                                        onConfirm={() => sendBack(item.id)}
+                                    >
+                                        <Button type={"text"} danger>退回</Button>
+                                    </Popconfirm>
                                     <Button type={"primary"} onClick={() => {
                                         router.push('/components/MarkDownEdit/' + item.noteId)
                                     }}>查看详情
-                                        {/*<Link href={{*/}
-                                        {/*    pathname: '/submitDetail/' + item.userId,*/}
-                                        {/*    query: {query: encryptAndEncodeObject(item)}*/}
-                                        {/*}} target={"_blank"}>查看详情</Link>*/}
                                     </Button>
                                 </List.Item>
                             )}
