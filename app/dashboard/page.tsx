@@ -17,6 +17,7 @@ import FunctionButton from "@/app/components/FunctionButton";
 import TextArea from "antd/es/input/TextArea";
 import {ls} from "@/app/utils/storage";
 import withThemeConfigProvider from "@/app/components/hoc/withThemeConfigProvider";
+import {nanoid} from "nanoid";
 
 const columns: ColumnsType<Note> = [
     {
@@ -143,9 +144,12 @@ function FunctionGroup(props: any) {
 
     const uploadProps: UploadProps = {
         name: 'image',
-        action: 'http://116.62.8.78:8089/api/note/bases/covers',
+        action: `${process.env.NEXT_PUBLIC_BASE_URL}/api/note/bases/covers`,
         headers: {
             'accessToken': token
+        },
+        data: {
+            "uploadId": nanoid()
         },
         listType: "picture-card",
         onChange(info) {

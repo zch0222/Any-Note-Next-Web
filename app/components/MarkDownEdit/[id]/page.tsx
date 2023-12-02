@@ -173,7 +173,7 @@ export default function MarkDownEdit({params}: { params: { id: string } }) {
                     handler(files) {
                         return upLoadImage(files, vditor);
                     },
-                    url: 'https://api.anynote.tech/api/note/notes/images'
+                    url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/note/notes/images`
                 },
                 toolbar: ["emoji",
                     "headings",
